@@ -3,17 +3,22 @@
 require_relative 'board'
 require_relative 'pieces'
 require_relative 'messages'
+require_relative 'notation'
+require_relative 'moves'
 
-messages = Messages.new
-board = Board.new
+# messages = Messages.new
 
-messages.welcome
-messages.names
-messages.greeting
-messages.move
+notation = Notation.new
+moves = Moves.new
+board = Board.new(moves.helper_board_square_numbers)
 
-board.create_board_squares
+notation.numbers_to_algebraic
+notation.create_board_coordinates
+notation.numbers_to_coordinates
 
-board.set_position
+# messages.welcome
 board.draw_board
-puts board.chessboard
+# messages.names
+# messages.greeting
+# messages.move
+board.display_board
