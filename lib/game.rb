@@ -6,19 +6,32 @@ require_relative 'messages'
 require_relative 'notation'
 require_relative 'moves'
 
-# messages = Messages.new
-
+messages = Messages.new
 notation = Notation.new
 moves = Moves.new
-board = Board.new(moves.helper_board_square_numbers)
+board = Board.new(moves.new_game)
 
 notation.numbers_to_algebraic
 notation.create_board_coordinates
-notation.numbers_to_coordinates
 
 # messages.welcome
-board.draw_board
-# messages.names
+messages.names
 # messages.greeting
-# messages.move
+
+game_loop = true
+turn = true
 board.display_board
+
+while game_loop
+  messages.move(turn)
+  if notation.collect_move && moves.start_piece_detect(notation.input_start)
+    moves.game_in_progress(notation.input_start, notation.input_end)
+    board = Board.new(moves.new_game)
+    system 'clear'
+    messages.next_turn
+    board.display_board
+    turn = !turn
+  else
+    messages.invalid_move
+  end
+end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'colorize'
-require_relative 'pieces'
 
 # chessboard
 class Board
@@ -32,6 +31,7 @@ class Board
   end
 
   def display_board
+    draw_board
     puts @chessboard.join
   end
 end

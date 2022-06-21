@@ -11,6 +11,8 @@ class Notation
     @ranks = [*0..8]
     @files = [*0..8]
     @board = []
+    @start_square = ''
+    @end_square = ''
   end
 
   def create_board_coordinates
@@ -38,7 +40,27 @@ class Notation
     @table
   end
 
+  def move_valid_format(move)
+    move.length == 5 && @letter.include?(move[0]) && @num.include?(move[1].to_i) && move[2] == '-' && @letter.include?(move[3]) && @num.include?(move[4].to_i)
+  end
+
+  def collect_move(move = gets.chomp.upcase)
+    if move_valid_format(move)
+      @start_square = move.split('-')[0]
+      @end_square = move.split('-')[1]
+    end
+  end
+
   def numbers_to_coordinates
-    @board[@table['A8']]
+    @board[@table[@start_square]]
+    @board[@table[@end_square]]
+  end
+
+  def input_start
+    @table[@start_square]
+  end
+
+  def input_end
+    @table[@end_square]
   end
 end
