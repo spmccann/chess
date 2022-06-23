@@ -24,7 +24,7 @@ board.display_board
 
 while game_loop
   messages.move(turn)
-  if notation.collect_move && moves.start_piece_detect(notation.input_start)
+  if notation.collect_move && moves.basic_move_rules(notation.input_start, notation.input_end, turn)
     moves.game_in_progress(notation.input_start, notation.input_end)
     board = Board.new(moves.new_game)
     system 'clear'

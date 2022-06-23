@@ -26,14 +26,25 @@ class Moves
     positions.map! { |f| format('%02d', f) }
   end
 
-  def start_piece_detect(start_square)
+  def basic_move_rules(start_square, end_square, turn)
+    start_piece_exists(start_square) && end_piece_not_same_color(end_square, turn) && turn_color_match(start_square, turn)
+  end
+
+
+  def start_piece_exists(start_square)
     @new_game[start_square] != ' '
   end
 
+  def end_piece_not_same_color(end_square, turn)
+    turn ? !@p.white.include?(@new_game[end_square]) : !@p.black.include?(@new_game[end_square])
+  end
+
+  def turn_color_match(start_square, turn)
+    turn ? @p.white.include?(@new_game[start_square]) : @p.black.include?(@new_game[start_square])
+  end
+
   def game_in_progress(start_square, end_square)
-    if start_piece_detect(start_square)
-      @new_game[end_square] = @new_game[start_square]
-      @new_game[start_square] = ' '
-    end
+    @new_game[end_square] = @new_game[start_square]
+    @new_game[start_square] = ' '
   end
 end
