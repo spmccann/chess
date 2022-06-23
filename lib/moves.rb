@@ -30,7 +30,6 @@ class Moves
     start_piece_exists(start_square) && end_piece_not_same_color(end_square, turn) && turn_color_match(start_square, turn)
   end
 
-
   def start_piece_exists(start_square)
     @new_game[start_square] != ' '
   end
