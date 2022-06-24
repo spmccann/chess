@@ -22,13 +22,33 @@ class Messages
     puts "Hello #{@player1} and #{@player2}. #{@player1} has the white pieces and #{@player2} has the black pieces.  "
   end
 
-  def move(turn)
+  def ask_move
+    gets.chomp.upcase
+  end
+
+  def options(move)
+    move == 'OPTIONS'
+  end
+
+  def ask_option
+    gets.chomp.upcase
+  end
+
+  def options_menu
+    puts 'What option would you like?'
+    puts "Press 'S' to save, 'N' to start new game, 'L' to load game or 'Q' to quit, Any other key to exit."
+  end
+
+  def your_move(turn)
     turn ? puts("#{@player1}, enter a move.") : puts("#{@player2}, enter a move.")
   end
 
-  def invalid_move
-    # puts 'Enter your move in the format [A-H][1-8]-[A-H][1-8]. For example, E2-E4.'
-    puts 'Invalid move. Please enter again.'
+  def invalid_notation
+    puts 'Enter your move in the format [A-H][1-8]-[A-H][1-8]. For example, E2-E4.'
+  end
+
+  def invalid_chess_move
+    puts 'Invalid chess move.'
   end
 
   def next_turn

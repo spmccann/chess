@@ -40,15 +40,13 @@ class Notation
     @table
   end
 
-  def move_valid_format(move)
+  def notation_valid_format(move)
     move.length == 5 && @letter.include?(move[0]) && @num.include?(move[1].to_i) && move[2] == '-' && @letter.include?(move[3]) && @num.include?(move[4].to_i)
   end
 
-  def collect_move(move = gets.chomp.upcase)
-    if move_valid_format(move)
-      @start_square = move.split('-')[0]
-      @end_square = move.split('-')[1]
-    end
+  def submit_move(move)
+    @start_square = move.split('-')[0]
+    @end_square = move.split('-')[1]
   end
 
   def numbers_to_coordinates
