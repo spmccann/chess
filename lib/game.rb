@@ -6,21 +6,22 @@ require_relative 'notation'
 require_relative 'moves'
 require_relative 'serialize'
 
-messages = Messages.new
-notation = Notation.new
-moves = Moves.new
-board = Board.new(moves.new_board)
-serialize = Serialize.new(moves.new_board)
+game_loop = true
+turn = true
 
+notation = Notation.new
 notation.numbers_to_algebraic
 notation.create_board_coordinates
 
-messages.welcome
-messages.names
-messages.greeting
+moves = Moves.new
+board = Board.new(moves.new_board)
 
-game_loop = true
-turn = true
+messages = Messages.new
+messages.welcome
+messages.names_request
+
+serialize = Serialize.new(moves.new_board, messages.names, turn)
+messages.greeting
 board.display_board
 
 while game_loop
@@ -30,8 +31,21 @@ while game_loop
   # Options (save, load, new game, quit)
   if messages.options(player_move)
     messages.options_menu
-    messages.ask_option
-    serialize.save_game
+    choice = messages.ask_option
+    serialize.option_selector(choice)
+    messages.confirmation(choice)
+    case choice
+    when 'L'
+      messages.names(serialize.names[0], serialize.names[1])
+      board = Board.new(serialize.game)
+      turn = serialize.turn
+      board.display_board
+    when 'N'
+      board = Board.new(moves.reset_board)
+      board.display_board
+    when 'Q'
+      game_loop = false
+    end
   # proceed with the move if player input has the correct notation
   elsif notation.notation_valid_format(player_move)
     notation.submit_move(player_move)

@@ -11,11 +11,14 @@ class Messages
     puts 'Chess'
   end
 
-  def names
-    puts "Please enter Player 1's name"
-    @player1 = gets.chomp
-    puts "Please enter Player 2's name"
-    @player2 = gets.chomp
+  def names_request
+    puts 'Welcome, please enter player names to continue'
+  end
+
+  def names(one = gets.chomp, two = gets.chomp)
+    @player1 = one
+    @player2 = two
+    [@player1, @player2]
   end
 
   def greeting
@@ -36,7 +39,20 @@ class Messages
 
   def options_menu
     puts 'What option would you like?'
-    puts "Press 'S' to save, 'N' to start new game, 'L' to load game or 'Q' to quit, Any other key to exit."
+    puts "'S' to save, 'N' to start new game, 'L' to load game or 'Q' to quit, Any other key to continue."
+  end
+
+  def confirmation(choice)
+    case choice
+    when 'S'
+      puts 'Game Saved!'
+    when 'N'
+      puts 'Starting New Game...'
+    when 'L'
+      puts 'Game Loaded!'
+    when 'Q'
+      puts 'Quiting Game. Goodbye'
+    end
   end
 
   def your_move(turn)
