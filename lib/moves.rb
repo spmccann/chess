@@ -134,7 +134,6 @@ class Moves < Notation
   def rook_clear_path
     notation = Notation.new
     notation.create_board_coordinates
-    @rook_paths
     @rook_paths.each do |c|
       next_square = notation.number_from_cord(c)
       return false if @new_board[next_square] != ' '

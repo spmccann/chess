@@ -37,5 +37,16 @@
  
  
  
- bish -> [1, -1], [-1,-1], [1,1], [-1, 1]
- rook -> [0, -1], [1, 0], [0, 1], [-1,0] 
+pawns - can't take moving forward, only diagonal when taking, en passant
+king - can't move into check
+all pieces - can't move and expose check
+checks
+checkmate
+castling short and long
+stalemate
+dead position
+promotion
+resign
+draw by agreement
+three-fold repetition
+
