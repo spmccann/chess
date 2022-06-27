@@ -56,7 +56,9 @@ class Moves < Notation
                                    start_square) && rook(start_cord, end_cord,
                                                          start_square) && king(start_cord, end_cord,
                                                                                start_square) && queen(start_cord,
-                                                                                                      end_cord, start_square)
+                                                                                                      end_cord, start_square) && pawn(
+                                                                                                        start_cord, end_cord, start_square
+                                                                                                      )
   end
 
   def which_piece?(num, start_square)
@@ -132,7 +134,7 @@ class Moves < Notation
   def rook_clear_path
     notation = Notation.new
     notation.create_board_coordinates
-    p @rook_paths
+    @rook_paths
     @rook_paths.each do |c|
       next_square = notation.number_from_cord(c)
       return false if @new_board[next_square] != ' '
@@ -168,6 +170,30 @@ class Moves < Notation
       else
         bish_full_path(start_cord, end_cord)
         bish_clear_path
+      end
+    else
+      true
+    end
+  end
+
+  def pawn(start_cord, end_cord, start_square)
+    cords = [[0, 1], [0, 2], [0, -1], [0, -2]]
+    pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
+    white_pawn_test = cords[0] == pawn_test
+    white_not_yet_moved = cords[1] == pawn_test
+    black_pawn_test = cords[2] == pawn_test
+    black_not_yet_moved = cords[3] == pawn_test
+    if @new_board[start_square] == @p.white[5]
+      if start_cord[1] == 6
+        white_pawn_test || white_not_yet_moved
+      else
+        white_pawn_test
+      end
+    elsif @new_board[start_square] == @p.black[5]
+      if start_cord[1] == 1
+        black_pawn_test || black_not_yet_moved
+      else
+        black_pawn_test
       end
     else
       true
