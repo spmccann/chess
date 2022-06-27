@@ -12,7 +12,7 @@ class Messages
   end
 
   def names_request
-    puts 'Welcome, please enter player names to continue'
+    puts 'Please enter player names to continue'
   end
 
   def names(one = gets.chomp, two = gets.chomp)
@@ -37,11 +37,6 @@ class Messages
     gets.chomp.upcase
   end
 
-  def options_menu
-    puts 'What option would you like?'
-    puts "'S' to save, 'N' to start new game, 'L' to load game or 'Q' to quit, Any other key to continue."
-  end
-
   def confirmation(choice)
     case choice
     when 'S'
@@ -52,7 +47,17 @@ class Messages
       puts 'Game Loaded!'
     when 'Q'
       puts 'Quiting Game. Goodbye'
+    when 'H'
+      help_menu
     end
+  end
+
+  def help_menu
+    puts 'S - saves game'
+    puts 'N - starts a new game'
+    puts 'L - loads game'
+    puts 'Q - quits the program'
+    puts 'H - help menu'
   end
 
   def your_move(turn)
@@ -68,6 +73,6 @@ class Messages
   end
 
   def next_turn
-    puts "Chess: #{@player1} vs. #{@player2}\n"
+    puts "Chess: #{@player1} vs. #{@player2}. Enter 'H' for all game options.\n"
   end
 end

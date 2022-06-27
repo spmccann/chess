@@ -50,7 +50,8 @@ class Moves < Notation
 
   # piece specific rules
   def piece_specific_rules(start_cord, end_cord, start_square)
-    knight(start_cord, end_cord, start_square) && bishop(start_cord, end_cord, start_square)
+    knight(start_cord, end_cord,
+           start_square) && bishop(start_cord, end_cord, start_square) && rook(start_cord, end_cord, start_square)
   end
 
   def knight(start_cord, end_cord, start_square)
@@ -63,29 +64,28 @@ class Moves < Notation
     end
   end
 
-  def bish_start_to_end_path(start_cord, end_cord)
-    @paths = []
+  def bish_full_path(start_cord, end_cord)
+    @bish_paths = []
     n = 1
     distance = (end_cord[0] - start_cord[0]).abs
     while n < distance
-      if start_cord[0] < end_cord[0] && start_cord[1] < end_cord[1]
-        @paths << [start_cord[0] + n, start_cord[1] + n]
-      elsif start_cord[0] < end_cord[0] && start_cord[1] > end_cord[1]
-        @paths << [start_cord[0] + n, start_cord[1] - n]
-      elsif start_cord[0] > end_cord[0] && start_cord[1] < end_cord[1]
-        @paths << [start_cord[0] - n, start_cord[1] + n]
-      else
-        @paths << [start_cord[0] - n, start_cord[1] - n]
-      end
+      @bish_paths << if start_cord[0] < end_cord[0] && start_cord[1] < end_cord[1]
+                       [start_cord[0] + n, start_cord[1] + n]
+                     elsif start_cord[0] < end_cord[0] && start_cord[1] > end_cord[1]
+                       [start_cord[0] + n, start_cord[1] - n]
+                     elsif start_cord[0] > end_cord[0] && start_cord[1] < end_cord[1]
+                       [start_cord[0] - n, start_cord[1] + n]
+                     else
+                       [start_cord[0] - n, start_cord[1] - n]
+                     end
       n += 1
     end
-    p @paths
   end
 
   def bish_clear_path
     notation = Notation.new
     notation.create_board_coordinates
-    @paths.each do |c|
+    @bish_paths.each do |c|
       next_square = notation.number_from_cord(c)
       return false if @new_board[next_square] != ' '
     end
@@ -93,10 +93,32 @@ class Moves < Notation
   end
 
   def bishop(start_cord, end_cord, start_square)
-    bish_start_to_end_path(start_cord, end_cord)
+    bish_full_path(start_cord, end_cord)
     bishop_test = (end_cord[0] - start_cord[0]).abs == (end_cord[1] - start_cord[1]).abs
     if new_board[start_square] == @p.white[3] || @new_board[start_square] == @p.black[3]
       bishop_test if bish_clear_path
+    else
+      true
+    end
+  end
+
+  # def rook_full_path(start_cord, end_cord)
+  #   @rook_paths = []
+  #   n = 1
+  #   direction = [(end_cord[0] - start_cord[0]).abs, (end_cord[0] - start_cord[0]).abs]
+  #   while n < direction.max
+  #     @bish_paths << if (start_cord[0] - end_cord[0]).zero?
+  #                      [start_cord[0] + n, start_cord[1] + n]
+  #                    else
+  #                      [start_cord[0] - n, start_cord[1] - n]
+  #                    end
+  #     n += 1
+  #   end
+  # end
+
+  def rook(start_cord, end_cord, start_square)
+    if new_board[start_square] == @p.white[2] || @new_board[start_square] == @p.black[2]
+      (start_cord[0] - end_cord[0]).zero? || (start_cord[1] - end_cord[1]).zero?
     else
       true
     end

@@ -29,12 +29,10 @@ while game_loop
   messages.your_move(turn)
   player_move = messages.ask_move
   # Options (save, load, new game, quit)
-  if messages.options(player_move)
-    messages.options_menu
-    choice = messages.ask_option
-    serialize.option_selector(choice)
-    messages.confirmation(choice)
-    case choice
+  if %w[S N L Q H].include?(player_move)
+    serialize.option_selector(player_move)
+    messages.confirmation(player_move)
+    case player_move
     when 'L'
       messages.names(serialize.names[0], serialize.names[1])
       board = Board.new(serialize.game)
@@ -43,14 +41,17 @@ while game_loop
     when 'N'
       board = Board.new(moves.reset_board)
       board.display_board
+      turn = true
     when 'Q'
       game_loop = false
     end
   # proceed with the move if player input has the correct notation
   elsif notation.notation_valid_format(player_move)
     notation.submit_move(player_move)
-    # checks and moves if move is within basic guidelines. i.e. not capturing own piece, moving empty or opponent piece
-    if moves.basic_move_rules(notation.input_start, notation.input_end, turn) && moves.piece_specific_rules(notation.cords_start, notation.cords_end, notation.input_start)
+    # checks and moves follow game rules
+    if moves.basic_move_rules(notation.input_start, notation.input_end,
+                              turn) && moves.piece_specific_rules(notation.cords_start, notation.cords_end,
+                                                                  notation.input_start)
       moves.make_moves(notation.input_start, notation.input_end)
       board = Board.new(moves.new_board)
       system 'clear'
