@@ -50,7 +50,7 @@ while game_loop
   elsif notation.notation_valid_format(player_move)
     notation.submit_move(player_move)
     # checks and moves if move is within basic guidelines. i.e. not capturing own piece, moving empty or opponent piece
-    if moves.basic_move_rules(notation.input_start, notation.input_end, turn)
+    if moves.basic_move_rules(notation.input_start, notation.input_end, turn) && moves.piece_specific_rules(notation.cords_start, notation.cords_end, notation.input_start)
       moves.make_moves(notation.input_start, notation.input_end)
       board = Board.new(moves.new_board)
       system 'clear'

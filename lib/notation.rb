@@ -23,6 +23,10 @@ class Notation
     end
   end
 
+  def number_from_cord(square)
+    @board.index(square)
+  end
+
   def numbers_to_algebraic
     number = 1
     i = 0
@@ -49,8 +53,11 @@ class Notation
     @end_square = move.split('-')[1]
   end
 
-  def numbers_to_coordinates
+  def cords_start
     @board[@table[@start_square]]
+  end
+
+  def cords_end
     @board[@table[@end_square]]
   end
 

@@ -22,7 +22,7 @@ class Messages
   end
 
   def greeting
-    puts "Hello #{@player1} and #{@player2}. #{@player1} has the white pieces and #{@player2} has the black pieces.  "
+    puts "#{@player1} has the white pieces and #{@player2} has the black pieces.  "
   end
 
   def ask_move
