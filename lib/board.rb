@@ -24,7 +24,7 @@ class Board
         @chessboard << " #{square} ".on_light_white
         alt = false
       else
-        @chessboard << " #{square} ".on_light_green
+        @chessboard << " #{square} ".on_light_blue
         alt = true
       end
     end

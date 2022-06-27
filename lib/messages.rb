@@ -8,11 +8,11 @@ class Messages
   end
 
   def welcome
-    puts 'Chess'
+    puts '♔Chess♚'
   end
 
   def names_request
-    puts 'Please enter player names to continue'
+    puts 'Enter player names for white and black'
   end
 
   def names(one = gets.chomp, two = gets.chomp)
@@ -22,7 +22,7 @@ class Messages
   end
 
   def greeting
-    puts "#{@player1} has the white pieces and #{@player2} has the black pieces.  "
+    puts "white pieces: #{@player1} black pieces: #{@player2}  "
   end
 
   def ask_move
@@ -42,7 +42,7 @@ class Messages
     when 'S'
       puts 'Game Saved!'
     when 'N'
-      puts 'Starting New Game...'
+      puts 'Started New Game'
     when 'L'
       puts 'Game Loaded!'
     when 'Q'
@@ -53,11 +53,13 @@ class Messages
   end
 
   def help_menu
+    puts '------------------------'
     puts 'S - saves game'
-    puts 'N - starts a new game'
     puts 'L - loads game'
+    puts 'N - starts a new game'
     puts 'Q - quits the program'
     puts 'H - help menu'
+    puts '------------------------'
   end
 
   def your_move(turn)
@@ -73,6 +75,6 @@ class Messages
   end
 
   def next_turn
-    puts "Chess: #{@player1} vs. #{@player2}. Enter 'H' for all game options.\n"
+    puts "-----------Chess-----------\n #{@player1} vs. #{@player2} |'H' for help\n"
   end
 end

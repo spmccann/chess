@@ -52,13 +52,21 @@ class Moves < Notation
   # piece specific rules
   def piece_specific_rules(start_cord, end_cord, start_square)
     knight(start_cord, end_cord,
-           start_square) && bishop(start_cord, end_cord, start_square) && rook(start_cord, end_cord, start_square)
+           start_square) && bishop(start_cord, end_cord,
+                                   start_square) && rook(start_cord, end_cord,
+                                                         start_square) && king(start_cord, end_cord,
+                                                                               start_square) && queen(start_cord,
+                                                                                                      end_cord, start_square)
+  end
+
+  def which_piece?(num, start_square)
+    @new_board[start_square] == @p.white[num] || @new_board[start_square] == @p.black[num]
   end
 
   def knight(start_cord, end_cord, start_square)
     cords = [[-2, -1], [-2, 1], [-1, 2], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]]
     knight_test = cords.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
-    if @new_board[start_square] == @p.white[4] || @new_board[start_square] == @p.black[4]
+    if which_piece?(4, start_square)
       knight_test
     else
       true
@@ -96,7 +104,7 @@ class Moves < Notation
   def bishop(start_cord, end_cord, start_square)
     bish_full_path(start_cord, end_cord)
     bishop_test = (end_cord[0] - start_cord[0]).abs == (end_cord[1] - start_cord[1]).abs
-    if new_board[start_square] == @p.white[3] || @new_board[start_square] == @p.black[3]
+    if which_piece?(3, start_square)
       bishop_test if bish_clear_path
     else
       true
@@ -133,9 +141,34 @@ class Moves < Notation
   end
 
   def rook(start_cord, end_cord, start_square)
+    @rook_test = (start_cord[0] - end_cord[0]).zero? || (start_cord[1] - end_cord[1]).zero?
     rook_full_path(start_cord, end_cord)
-    if new_board[start_square] == @p.white[2] || @new_board[start_square] == @p.black[2]
-      (start_cord[0] - end_cord[0]).zero? || (start_cord[1] - end_cord[1]).zero? if rook_clear_path
+    if which_piece?(2, start_square)
+      @rook_test if rook_clear_path
+    else
+      true
+    end
+  end
+
+  def king(start_cord, end_cord, start_square)
+    cords = [[0, 1], [1, 0], [-1, 0], [0, -1]]
+    king_test = cords.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
+    if which_piece?(0, start_square)
+      king_test
+    else
+      true
+    end
+  end
+
+  def queen(start_cord, end_cord, start_square)
+    if which_piece?(1, start_square)
+      if @rook_test
+        rook_full_path(start_cord, end_cord)
+        rook_clear_path
+      else
+        bish_full_path(start_cord, end_cord)
+        bish_clear_path
+      end
     else
       true
     end
