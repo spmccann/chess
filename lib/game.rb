@@ -48,7 +48,7 @@ while game_loop
   # proceed with the move if player input has the correct notation
   elsif notation.notation_valid_format(player_move)
     notation.submit_move(player_move)
-    # checks and moves follow game rules
+    # checks that moves follow game rules
     if moves.basic_move_rules(notation.input_start, notation.input_end,
                               turn) && moves.piece_specific_rules(notation.cords_start, notation.cords_end,
                                                                   notation.input_start)

@@ -8,6 +8,7 @@ class Moves < Notation
   attr_accessor(:new_board)
 
   def initialize
+    super
     @p = Pieces.new
     @new_board =
       ['8', @p.black[2], @p.black[4], @p.black[3], @p.black[1], @p.black[0], @p.black[3], @p.black[4], @p.black[2],
@@ -102,23 +103,39 @@ class Moves < Notation
     end
   end
 
-  # def rook_full_path(start_cord, end_cord)
-  #   @rook_paths = []
-  #   n = 1
-  #   direction = [(end_cord[0] - start_cord[0]).abs, (end_cord[0] - start_cord[0]).abs]
-  #   while n < direction.max
-  #     @bish_paths << if (start_cord[0] - end_cord[0]).zero?
-  #                      [start_cord[0] + n, start_cord[1] + n]
-  #                    else
-  #                      [start_cord[0] - n, start_cord[1] - n]
-  #                    end
-  #     n += 1
-  #   end
-  # end
+  def rook_full_path(start_cord, end_cord)
+    @rook_paths = []
+    i = 1
+    diff = [(end_cord[0] - start_cord[0]).abs, (end_cord[1] - start_cord[1]).abs]
+    while i < diff.max
+      @rook_paths << if diff[0].positive? && start_cord[0] < end_cord[0]
+                       [start_cord[0] + i, start_cord[1]]
+                     elsif diff[0].positive? && start_cord[0] > end_cord[0]
+                       [start_cord[0] - i, start_cord[1]]
+                     elsif diff[1].positive? && start_cord[1] < end_cord[1]
+                       [start_cord[0], start_cord[1] + i]
+                     else
+                       [start_cord[0], start_cord[1] - i]
+                     end
+      i += 1
+    end
+  end
+
+  def rook_clear_path
+    notation = Notation.new
+    notation.create_board_coordinates
+    p @rook_paths
+    @rook_paths.each do |c|
+      next_square = notation.number_from_cord(c)
+      return false if @new_board[next_square] != ' '
+    end
+    true
+  end
 
   def rook(start_cord, end_cord, start_square)
+    rook_full_path(start_cord, end_cord)
     if new_board[start_square] == @p.white[2] || @new_board[start_square] == @p.black[2]
-      (start_cord[0] - end_cord[0]).zero? || (start_cord[1] - end_cord[1]).zero?
+      (start_cord[0] - end_cord[0]).zero? || (start_cord[1] - end_cord[1]).zero? if rook_clear_path
     else
       true
     end
