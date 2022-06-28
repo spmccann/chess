@@ -4,11 +4,10 @@ require_relative 'pieces'
 require_relative 'notation'
 
 # accepts player inputs to update the board and pieces
-class Moves < Notation
+class Moves
   attr_accessor(:new_board)
 
   def initialize
-    super
     @p = Pieces.new
     @new_board =
       ['8', @p.black[2], @p.black[4], @p.black[3], @p.black[1], @p.black[0], @p.black[3], @p.black[4], @p.black[2],
@@ -27,6 +26,7 @@ class Moves < Notation
     positions.map! { |f| format('%02d', f) }
   end
 
+  # general rules for movemeent
   def basic_move_rules(start_square, end_square, turn)
     start_piece_exists(start_square) && end_piece_not_same_color(end_square,
                                                                  turn) && turn_color_match(start_square, turn)
@@ -176,27 +176,40 @@ class Moves < Notation
   end
 
   def pawn(start_cord, end_cord, start_square)
-    cords = [[0, 1], [0, 2], [0, -1], [0, -2]]
-    pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
-    white_pawn_test = cords[0] == pawn_test
-    white_not_yet_moved = cords[1] == pawn_test
-    black_pawn_test = cords[2] == pawn_test
-    black_not_yet_moved = cords[3] == pawn_test
-    if @new_board[start_square] == @p.white[5]
-      if start_cord[1] == 6
-        white_pawn_test || white_not_yet_moved
-      else
-        white_pawn_test
-      end
-    elsif @new_board[start_square] == @p.black[5]
-      if start_cord[1] == 1
-        black_pawn_test || black_not_yet_moved
-      else
-        black_pawn_test
-      end
+    if which_piece?(5, start_square)
+      side_pawn_check(start_cord, end_cord, start_square)
     else
       true
     end
+  end
+
+  def side_pawn_check(start_cord, end_cord, start_square)
+    if @new_board[start_square] == @p.white[5]
+      cords = [[0, 1], [0, 2], [-1, 1], [1, 1]]
+      start_num = 6
+    else
+      cords = [[0, -1], [0, -2], [-1, -1], [1, -1]]
+      start_num = 1
+    end
+    pawn_test = cords[0] == [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
+    not_yet_moved = cords[1] == [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
+    capture_test = cords[2..3].include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
+    pawn_moves(pawn_test, not_yet_moved, capture_test, start_cord, end_cord, start_num)
+  end
+
+  def pawn_moves(pawn_test, not_yet_moved, capture_test, start_cord, end_cord, start_num)
+    if start_cord[1] == start_num
+      (pawn_test || not_yet_moved) unless pawn_capture(end_cord) || (capture_test if pawn_capture(end_cord))
+    else
+      (pawn_test unless pawn_capture(end_cord)) || (capture_test if pawn_capture(end_cord))
+    end
+  end
+
+  def pawn_capture(end_cord)
+    notation = Notation.new
+    notation.create_board_coordinates
+    end_square = notation.number_from_cord(end_cord)
+    true if @new_board[end_square] != ' '
   end
 
   def reset_board

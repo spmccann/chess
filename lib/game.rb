@@ -29,7 +29,7 @@ while game_loop
   messages.your_move(turn)
   player_move = messages.ask_move
   # Options (save, load, new game, quit)
-  if %w[S N L Q H].include?(player_move)
+  if %w[S R L Q H].include?(player_move)
     serialize.option_selector(player_move)
     messages.confirmation(player_move)
     case player_move
@@ -38,7 +38,7 @@ while game_loop
       board = Board.new(serialize.game)
       turn = serialize.turn
       board.display_board
-    when 'N'
+    when 'R'
       board = Board.new(moves.reset_board)
       board.display_board
       turn = true
