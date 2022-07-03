@@ -37,27 +37,16 @@
  
  
  
-
+pawns - can't take moving forward, only diagonal when taking, en passant
+king - can't move into check
+all pieces - can't move and expose check
 checks
 checkmate
 castling short and long
-
-promotion
 stalemate
-en passant
 dead position
-
+promotion
+resign
 draw by agreement
 three-fold repetition
-
-
-
-checks - paths to king in current position
-
-
-
-
-
-
-
 
