@@ -61,18 +61,45 @@ class Moves
                                                                                                       )
   end
 
+  def king_coordinates
+    square = @new_board.index(@p.black[0])
+    notation = Notation.new
+    notation.create_board_coordinates
+    notation.cord_from_number(square)
+  end
+
+  def king_checks
+    knight_check(king_coordinates)
+  end
+
   def which_piece?(num, start_square)
     @new_board[start_square] == @p.white[num] || @new_board[start_square] == @p.black[num]
   end
 
   def knight(start_cord, end_cord, start_square)
-    cords = [[-2, -1], [-2, 1], [-1, 2], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]]
+    cords = [[-2, -1], [-2, 1], [-1, 2], [-1, -2], [1, -2], [1, 2], [2, -1], [2, 1]]
     knight_test = cords.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
     if which_piece?(4, start_square)
       knight_test
     else
       true
     end
+  end
+
+  def knight_full_paths(king_cord)
+    cords = [[-2, -1], [-2, 1], [-1, 2], [-1, -2], [1, -2], [1, 2], [2, -1], [2, 1]]
+    @knight_paths = []
+    cords.each { |c| @knight_paths << ([king_cord[0] + c[0], king_cord[1] + c[1]]) }
+  end
+
+  def knight_check(king_cord)
+    knight_full_paths(king_cord)
+    notation = Notation.new
+    notation.create_board_coordinates
+    next_square = []
+    @knight_paths.each { |c| next_square << notation.number_from_cord(c) }
+    next_square.compact!
+    next_square.each { |s| puts 'Check!' if @new_board[s] == @p.white[4] || @new_board[s] == @p.black[4] }
   end
 
   def bish_full_path(start_cord, end_cord)

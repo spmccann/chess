@@ -27,6 +27,10 @@ class Notation
     @board.index(square)
   end
 
+  def cord_from_number(square)
+    @board[square]
+  end
+
   def numbers_to_algebraic
     number = 1
     i = 0
