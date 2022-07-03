@@ -57,6 +57,7 @@ while game_loop
       system 'clear'
       messages.next_turn
       board.display_board
+      moves.king_checks
       turn = !turn
     else
       messages.invalid_chess_move
