@@ -39,7 +39,7 @@ while game_loop
       turn = serialize.turn
       board.display_board
     when 'R'
-      board = Board.new(moves.reset_board)
+      board = Board.new(moves.resigns)
       board.display_board
       turn = true
     when 'Q'
@@ -50,8 +50,8 @@ while game_loop
     notation.submit_move(player_move)
     # checks that moves follow game rules
     if moves.basic_move_rules(notation.input_start, notation.input_end,
-                              turn) && moves.piece_specific_rules(notation.cords_start, notation.cords_end,
-                                                                  notation.input_start)
+                              turn) && moves.piece_picker(notation.cords_start, notation.cords_end,
+                                                          notation.input_start)
       moves.make_moves(notation.input_start, notation.input_end)
       board = Board.new(moves.new_board)
       system 'clear'
