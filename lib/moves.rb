@@ -4,7 +4,7 @@ require_relative 'pieces'
 require_relative 'notation'
 require_relative 'cords_module'
 
-# accepts player inputs to update the board and pieces
+# accepts player inputs to update the board and pieces positions
 class Moves
   attr_accessor(:new_board)
 
@@ -53,12 +53,6 @@ class Moves
     turn ? @piece.white.include?(@new_board[start_square]) : @piece.black.include?(@new_board[start_square])
   end
 
-  # checks if any pieces are way of requested move
-  def clear_path?
-    notation = Notation.new
-    @path.each { |c| return false if @new_board[notation.number_from_cord(c)] != ' ' }
-  end
-
   # piece specific move rules
   def piece_picker(start_cord, end_cord, start_square)
     case @new_board[start_square]
@@ -75,6 +69,12 @@ class Moves
     when @piece.white[5], @piece.black[5]
       pawn(start_cord, end_cord, start_square)
     end
+  end
+
+  # checks if any pieces are way of requested move
+  def clear_path?
+    notation = Notation.new
+    @path.each { |c| return false if @new_board[notation.number_from_cord(c)] != ' ' }
   end
 
   # king
