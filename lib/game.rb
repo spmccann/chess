@@ -54,11 +54,11 @@ while game_loop
                                                           notation.input_start)
       moves.make_moves(notation.input_start, notation.input_end)
       board = Board.new(moves.new_board)
+      turn = !turn
       system 'clear'
       messages.next_turn
       board.display_board
       moves.king_checks
-      turn = !turn
     else
       messages.invalid_chess_move
     end

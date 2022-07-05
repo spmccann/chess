@@ -13,6 +13,7 @@ class Notation
     @board = []
     @start_square = ''
     @end_square = ''
+    create_board_coordinates
   end
 
   def create_board_coordinates
