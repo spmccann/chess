@@ -157,19 +157,19 @@ class Moves
   end
 
   def pawn_moves(cords, start_num, start_cord, end_cord)
-    pawn_test = cords[0] == [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
-    not_yet_moved = cords[1] == [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
-    capture_test = cords[2..3].include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
+    forward_one = cords[0] == [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
+    forward_two = cords[1] == [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
+    diag_capture = cords[2..3].include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
     if start_cord[1] == start_num
-      (pawn_test || not_yet_moved) unless pawn_capture(end_cord) || (capture_test if pawn_capture(end_cord))
+      (forward_one || forward_two) unless pawn_capture(end_cord) || (diag_capture if pawn_capture(end_cord))
     else
-      pawn_test unless pawn_capture(end_cord) || (capture_test if pawn_capture(end_cord))
+      forward_one || (diag_capture if pawn_capture(end_cord))
     end
   end
 
   def pawn_capture(end_cord)
     notation = Notation.new
-    true if @new_board[notation.number_from_cord(end_cord)] != ' '
+    @new_board[notation.number_from_cord(end_cord)] != ' '
   end
 
   # checking

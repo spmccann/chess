@@ -8,7 +8,7 @@ class Messages
   end
 
   def welcome
-    puts '♔Chess♚'
+    puts '♔ Chess ♚'
   end
 
   def names_request
