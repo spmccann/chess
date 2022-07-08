@@ -149,27 +149,32 @@ class Moves
     if @new_board[start_square] == @piece.white[5]
       cords = PAWN_WHITE_CORDS
       start_num = 6
+      mid_cord = [end_cord[0], end_cord[1] + 1]
     else
       cords = PAWN_BLACK_CORDS
       start_num = 1
+      mid_cord = [end_cord[0], end_cord[1] - 1]
     end
-    pawn_moves(cords, start_num, start_cord, end_cord)
+    pawn_moves(cords, start_num, start_cord, end_cord, mid_cord)
   end
 
-  def pawn_moves(cords, start_num, start_cord, end_cord)
-    forward_one = cords[0] == [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
-    forward_two = cords[1] == [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
-    diag_capture = cords[2..3].include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
-    if start_cord[1] == start_num
-      (forward_one || forward_two) unless pawn_capture(end_cord) || (diag_capture if pawn_capture(end_cord))
-    else
-      forward_one || (diag_capture if pawn_capture(end_cord))
-    end
+  def pawn_moves(cords, start_num, start_cord, end_cord, mid_cord)
+    pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
+    diag_capture = cords[2..3].include?(pawn_test)
+    return true if start_cord[1] == start_num && cords[1] == pawn_test && !pawn_capture(end_cord) && pawn_mid(mid_cord)
+    return true if cords[0] == pawn_test && !pawn_capture(end_cord) || (diag_capture && pawn_capture(end_cord))
   end
 
+  # true if diag capture and using the negation if moving ahead
   def pawn_capture(end_cord)
     notation = Notation.new
     @new_board[notation.number_from_cord(end_cord)] != ' '
+  end
+
+  # checking that there's no piece one square ahead if moving 2 squares
+  def pawn_mid(mid_cord)
+    notation = Notation.new
+    @new_board[notation.number_from_cord(mid_cord)] == ' '
   end
 
   # checking
