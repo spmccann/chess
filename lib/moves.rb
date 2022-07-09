@@ -202,8 +202,7 @@ class Moves
     notation = Notation.new
     next_square = []
     @knight_paths.each { |c| next_square << notation.number_from_cord(c) }
-    next_square.compact!
-    next_square.each { |s| puts 'Check!' if @new_board[s] == @piece.white[4] || @new_board[s] == @piece.black[4] }
+    next_square.compact!.each { |s| puts 'Check!' if @new_board[s] == @piece.white[4] || @new_board[s] == @piece.black[4] }
   end
 
   # new game
