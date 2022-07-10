@@ -178,31 +178,32 @@ class Moves
   end
 
   # checking
-  def white_king_coordinates
-    notation = Notation.new
-    notation.cord_from_number(@new_board.index(@piece.white[0]))
-  end
-
-  def black_king_coordinates
-    notation = Notation.new
-    notation.cord_from_number(@new_board.index(@piece.black[0]))
-  end
-
   def king_checks
-    knight_check(black_king_coordinates)
+    knight_check(king_coordinates)
   end
 
-  def knight_full_paths(king_cord)
-    @knight_paths = []
-    KNIGHT_CORDS.each { |c| @knight_paths << ([king_cord[0] + c[0], king_cord[1] + c[1]]) }
+  def king_coordinates
+    notation = Notation.new
+    notation.cord_from_number(@new_board.index(@king_color[0]))
   end
 
+  def piece_color(turn)
+    @attack_color = turn ? @piece.black : @piece.white
+    @king_color = turn ? @piece.white : @piece.black
+  end
+
+  # knight checking
   def knight_check(king_cord)
     knight_full_paths(king_cord)
     notation = Notation.new
     next_square = []
     @knight_paths.each { |c| next_square << notation.number_from_cord(c) }
-    next_square.compact!.each { |s| puts 'Check!' if @new_board[s] == @piece.white[4] || @new_board[s] == @piece.black[4] }
+    next_square.compact!.each { |s| return 'check' if @new_board[s] == @attack_color[4] }
+  end
+
+  def knight_full_paths(king_cord)
+    @knight_paths = []
+    KNIGHT_CORDS.each { |c| @knight_paths << ([king_cord[0] + c[0], king_cord[1] + c[1]]) }
   end
 
   # new game

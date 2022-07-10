@@ -35,7 +35,8 @@ while game_loop
     case player_move
     when 'L'
       messages.names(serialize.names[0], serialize.names[1])
-      board = Board.new(serialize.game)
+      moves.new_board = serialize.game
+      # board = Board.new(serialize.game)
       turn = serialize.turn
       board.display_board
     when 'R'
@@ -58,7 +59,8 @@ while game_loop
       system 'clear'
       messages.next_turn
       board.display_board
-      moves.king_checks
+      moves.piece_color(turn)
+      messages.check(turn) if moves.king_checks == 'check'
     else
       messages.invalid_chess_move
     end

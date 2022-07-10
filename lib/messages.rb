@@ -77,4 +77,8 @@ class Messages
   def next_turn
     puts "-----------Chess-----------\n #{@player1} vs. #{@player2} |'H' for help\n"
   end
+
+  def check(turn)
+    turn ? puts("#{@player1}, you're in check!") : puts("#{@player2}, you're in check!")
+  end
 end
