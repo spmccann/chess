@@ -6,7 +6,7 @@ require_relative 'cords_module'
 
 # accepts player inputs to update the board and pieces positions
 class Moves
-  attr_accessor(:new_board)
+  attr_accessor(:new_board, :test_board)
 
   include Coordinates
 
@@ -35,6 +35,12 @@ class Moves
     @new_board[start_square] = ' '
   end
 
+  def test_moves(start_square, end_square)
+    @test_board = @new_board.dup
+    @test_board[end_square] = @test_board[start_square]
+    @test_board[start_square] = ' '
+  end
+
   # general rules for movement
   def basic_move_rules(start_square, end_square, turn)
     start_piece_exists(start_square) && end_piece_not_same_color(end_square,
@@ -54,16 +60,16 @@ class Moves
   end
 
   # piece specific move rules
-  def piece_picker(start_cord, end_cord, start_square)
+  def piece_picker(start_cord, end_cord, start_square, board)
     case @new_board[start_square]
     when @piece.white[0], @piece.black[0]
       king(start_cord, end_cord)
     when @piece.white[1], @piece.black[1]
-      queen(start_cord, end_cord)
+      queen(start_cord, end_cord, board)
     when @piece.white[2], @piece.black[2]
-      rook(start_cord, end_cord)
+      rook(start_cord, end_cord, board)
     when @piece.white[3], @piece.black[3]
-      bishop(start_cord, end_cord)
+      bishop(start_cord, end_cord, board)
     when @piece.white[4], @piece.black[4]
       knight(start_cord, end_cord)
     when @piece.white[5], @piece.black[5]
@@ -72,9 +78,9 @@ class Moves
   end
 
   # checks if any pieces are way of requested move
-  def clear_path?
+  def clear_path?(board)
     notation = Notation.new
-    @path.each { |c| return false if @new_board[notation.number_from_cord(c)] != ' ' }
+    @path.each { |c| return false if board[notation.number_from_cord(c)] != ' ' }
   end
 
   # king
@@ -83,16 +89,16 @@ class Moves
   end
 
   # queen
-  def queen(start_cord, end_cord)
-    rook(start_cord, end_cord) || bishop(start_cord, end_cord)
+  def queen(start_cord, end_cord, board)
+    rook(start_cord, end_cord, board) || bishop(start_cord, end_cord, board)
   end
 
   # rooks
-  def rook(start_cord, end_cord)
+  def rook(start_cord, end_cord, board)
     return unless (start_cord[0] - end_cord[0]).zero? || (start_cord[1] - end_cord[1]).zero?
 
     rook_path(start_cord, end_cord)
-    clear_path?
+    clear_path?(board)
   end
 
   def rook_path(start_cord, end_cord)
@@ -114,11 +120,11 @@ class Moves
   end
 
   # bishops
-  def bishop(start_cord, end_cord)
+  def bishop(start_cord, end_cord, board)
     return unless (end_cord[0] - start_cord[0]).abs == (end_cord[1] - start_cord[1]).abs
 
     bishop_path(start_cord, end_cord)
-    clear_path?
+    clear_path?(board)
   end
 
   def bishop_path(start_cord, end_cord)
@@ -178,13 +184,14 @@ class Moves
   end
 
   # checking
-  def king_checks
-    knight_check(king_coordinates)
+  def king_checks(board)
+    knight_check(king_coordinates(board), board)
+    bishop_check(king_coordinates(board), board)
   end
 
-  def king_coordinates
+  def king_coordinates(board)
     notation = Notation.new
-    notation.cord_from_number(@new_board.index(@king_color[0]))
+    notation.cord_from_number(board.index(@king_color[0]))
   end
 
   def piece_color(turn)
@@ -193,17 +200,41 @@ class Moves
   end
 
   # knight checking
-  def knight_check(king_cord)
-    knight_full_paths(king_cord)
-    notation = Notation.new
-    next_square = []
-    @knight_paths.each { |c| next_square << notation.number_from_cord(c) }
-    next_square.compact!.each { |s| return 'check' if @new_board[s] == @attack_color[4] }
+  # def knight_check(king_cord, board)
+  #   knight_full_path(king_cord)
+  #   notation = Notation.new
+  #   next_square = []
+  #   @knight_path.each { |c| next_square << notation.number_from_cord(c) }
+  #   next_square.compact!.each { |s| return 'check' if board[s] == @attack_color[4] }
+  # end
+
+  # def knight_full_path(king_cord)
+  #   @knight_path = []
+  #   KNIGHT_CORDS.each { |c| @knight_path << ([king_cord[0] + c[0], king_cord[1] + c[1]]) }
+  # end
+
+  # knight checking
+  def knight_check(king_cord, board)
+    find_knights(board)
+    @all_knights.each { |k| return 'check' if knight(k, king_cord) }
   end
 
-  def knight_full_paths(king_cord)
-    @knight_paths = []
-    KNIGHT_CORDS.each { |c| @knight_paths << ([king_cord[0] + c[0], king_cord[1] + c[1]]) }
+  def find_knights(board)
+    notation = Notation.new
+    @all_knights = []
+    board.each_with_index { |p, i| @all_knights << notation.cord_from_number(i) if p == @attack_color[3] }
+  end
+
+  # bishop checking
+  def bishop_check(king_cord, board)
+    find_bishops(board)
+    @all_bishops.each { |b| return 'check' if bishop(b, king_cord, board) }
+  end
+
+  def find_bishops(board)
+    notation = Notation.new
+    @all_bishops = []
+    board.each_with_index { |p, i| @all_bishops << notation.cord_from_number(i) if p == @attack_color[3] }
   end
 
   # new game

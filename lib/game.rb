@@ -33,10 +33,12 @@ while game_loop
     messages.confirmation(player_move)
     case player_move
     when 'L'
+      system 'clear'
       messages.names(serialize.names[0], serialize.names[1])
       moves.new_board = serialize.game
-      # board = Board.new(serialize.game)
+      board = Board.new(serialize.game)
       turn = serialize.turn
+      messages.next_turn
       board.display_board
     when 'R'
       board = Board.new(moves.resigns)
@@ -51,7 +53,11 @@ while game_loop
     # checks that moves follow game rules
     if moves.basic_move_rules(notation.input_start, notation.input_end,
                               turn) && moves.piece_picker(notation.cords_start, notation.cords_end,
-                                                          notation.input_start)
+                                                          notation.input_start, moves.new_board)
+      moves.test_moves(notation.input_start, notation.input_end)
+      moves.piece_color(turn)
+      next if moves.king_checks(moves.test_board) == 'check'
+
       moves.make_moves(notation.input_start, notation.input_end)
       board = Board.new(moves.new_board)
       turn = !turn
@@ -59,7 +65,7 @@ while game_loop
       messages.next_turn
       board.display_board
       moves.piece_color(turn)
-      messages.check(turn) if moves.king_checks == 'check'
+      messages.check(turn) if moves.king_checks(moves.new_board) == 'check'
     else
       messages.invalid_chess_move
     end

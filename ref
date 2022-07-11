@@ -55,8 +55,12 @@ three-fold repetition
 checks - paths to king in current position
 
 
-pawns -- moving 2 spaces with pawn 1 square ahead
+pawns -- moving 2 spaces with pawn 1 square ahead -DONE
 
+message for still in check
+
+
+issue with moving king for knight checking function
 
 
 
