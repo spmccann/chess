@@ -11,7 +11,6 @@ turn = true
 
 notation = Notation.new
 notation.numbers_to_algebraic
-notation.create_board_coordinates
 
 moves = Moves.new
 board = Board.new(moves.new_board)
