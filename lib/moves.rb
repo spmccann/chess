@@ -185,8 +185,12 @@ class Moves
 
   # checking
   def king_checks(board)
-    knight_check(king_coordinates(board), board)
-    bishop_check(king_coordinates(board), board)
+    return true if knight_check(king_coordinates(board), board) == 'check'
+    return true if bishop_check(king_coordinates(board), board) == 'check'
+    return true if rook_check(king_coordinates(board), board) == 'check'
+    return true if queen_check(king_coordinates(board), board) == 'check'
+
+    false
   end
 
   def king_coordinates(board)
@@ -199,43 +203,37 @@ class Moves
     @king_color = turn ? @piece.white : @piece.black
   end
 
-  # knight checking
-  # def knight_check(king_cord, board)
-  #   knight_full_path(king_cord)
-  #   notation = Notation.new
-  #   next_square = []
-  #   @knight_path.each { |c| next_square << notation.number_from_cord(c) }
-  #   next_square.compact!.each { |s| return 'check' if board[s] == @attack_color[4] }
-  # end
-
-  # def knight_full_path(king_cord)
-  #   @knight_path = []
-  #   KNIGHT_CORDS.each { |c| @knight_path << ([king_cord[0] + c[0], king_cord[1] + c[1]]) }
-  # end
-
-  # knight checking
-  def knight_check(king_cord, board)
-    find_knights(board)
-    @all_knights.each { |k| return 'check' if knight(k, king_cord) }
-  end
-
-  def find_knights(board)
+  # create an array of cords of the requested piece type
+  def find_all_piece_by_type(num, board)
     notation = Notation.new
-    @all_knights = []
-    board.each_with_index { |p, i| @all_knights << notation.cord_from_number(i) if p == @attack_color[3] }
+    @all_pieces = []
+    board.each_with_index { |p, i| @all_pieces << notation.cord_from_number(i) if p == @attack_color[num] }
   end
 
-  # bishop checking
+  def queen_check(king_cord, board)
+    find_all_piece_by_type(1, board)
+    @all_pieces.each { |q| return 'check' if queen(q, king_cord, board) }
+  end
+
+  def rook_check(king_cord, board)
+    find_all_piece_by_type(2, board)
+    @all_pieces.each { |r| return 'check' if rook(r, king_cord, board) }
+  end
+
   def bishop_check(king_cord, board)
-    find_bishops(board)
-    @all_bishops.each { |b| return 'check' if bishop(b, king_cord, board) }
+    find_all_piece_by_type(3, board)
+    @all_pieces.each { |b| return 'check' if bishop(b, king_cord, board) }
   end
 
-  def find_bishops(board)
-    notation = Notation.new
-    @all_bishops = []
-    board.each_with_index { |p, i| @all_bishops << notation.cord_from_number(i) if p == @attack_color[3] }
+  def knight_check(king_cord, board)
+    find_all_piece_by_type(4, board)
+    @all_pieces.each { |n| return 'check' if knight(n, king_cord) }
   end
+
+  # def pawn_check(king_cord, board)
+  #   find_all_piece_by_type(5, board)
+  #   @all_pieces.each { |n| return 'check' if pawn(n, king_cord) }
+  # end
 
   # new game
   def resigns

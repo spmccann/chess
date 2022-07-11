@@ -21,10 +21,14 @@ messages.names_request
 
 serialize = Serialize.new(moves.new_board, messages.names, turn)
 messages.greeting
-board.display_board
 
 while game_loop
   # inform the player it's their turn ask for a move
+  system 'clear'
+  messages.next_turn
+  board.display_board
+  moves.piece_color(turn)
+  messages.check(turn) if moves.king_checks(moves.new_board)
   messages.your_move(turn)
   player_move = messages.ask_move
   # Options (save, load, new game, quit)
@@ -39,10 +43,8 @@ while game_loop
       board = Board.new(serialize.game)
       turn = serialize.turn
       messages.next_turn
-      board.display_board
     when 'R'
       board = Board.new(moves.resigns)
-      board.display_board
       turn = true
     when 'Q'
       game_loop = false
@@ -54,18 +56,14 @@ while game_loop
     if moves.basic_move_rules(notation.input_start, notation.input_end,
                               turn) && moves.piece_picker(notation.cords_start, notation.cords_end,
                                                           notation.input_start, moves.new_board)
+      # verifies a player in check makes a move out and also not in
       moves.test_moves(notation.input_start, notation.input_end)
-      moves.piece_color(turn)
-      next if moves.king_checks(moves.test_board) == 'check'
-
+      next if moves.king_checks(moves.test_board)
+      
+      # make the move on the board
       moves.make_moves(notation.input_start, notation.input_end)
       board = Board.new(moves.new_board)
       turn = !turn
-      system 'clear'
-      messages.next_turn
-      board.display_board
-      moves.piece_color(turn)
-      messages.check(turn) if moves.king_checks(moves.new_board) == 'check'
     else
       messages.invalid_chess_move
     end
