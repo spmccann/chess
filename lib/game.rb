@@ -19,10 +19,9 @@ messages.welcome
 messages.names_request
 
 serialize = Serialize.new(moves.new_board, messages.names, turn, moves.castle_rights)
-messages.greeting
 
 while game_loop
-  # inform the player it's their turn ask for a move
+  # inform the player it's their turn and ask for a move
   messages.next_turn
   board = Board.new(moves.new_board)
   board.display_board
@@ -46,6 +45,7 @@ while game_loop
     when 'Q'
       game_loop = false
     end
+  # castling
   elsif %w[0-0 0-0-0].include?(player_move)
     system 'clear'
     if moves.castle(player_move, turn)
@@ -62,8 +62,10 @@ while game_loop
                                                           notation.input_start, moves.new_board)
       # verifies a player in check makes a move out and also not in
       moves.test_moves(notation.input_start, notation.input_end)
-      next if moves.king_checks(moves.test_board)
-
+      if moves.king_checks(moves.test_board)
+        system 'clear'
+        next
+      end
       # make the move on the board
       moves.make_moves(notation.input_start, notation.input_end)
       turn = !turn

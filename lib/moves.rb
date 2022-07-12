@@ -12,6 +12,7 @@ class Moves
 
   def initialize
     @piece = Pieces.new
+    @notation = Notation.new
     @castle_rights = [0, 0, 0, 0]
     @new_board =
       ['8', @piece.black[2], @piece.black[4], @piece.black[3], @piece.black[1], @piece.black[0], @piece.black[3], @piece.black[4], @piece.black[2],
@@ -74,14 +75,13 @@ class Moves
     when @piece.white[4], @piece.black[4]
       knight(start_cord, end_cord)
     when @piece.white[5], @piece.black[5]
-      pawn(start_cord, end_cord, start_square)
+      pawn(start_cord, end_cord, board)
     end
   end
 
   # checks if any pieces are way of requested move
   def clear_path?(board)
-    notation = Notation.new
-    @path.each { |c| return false if board[notation.number_from_cord(c)] != ' ' }
+    @path.each { |c| return false if board[@notation.number_from_cord(c)] != ' ' }
   end
 
   def king(start_cord, end_cord)
@@ -146,8 +146,8 @@ class Moves
     KNIGHT_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
   end
 
-  def pawn(start_cord, end_cord, start_square)
-    if @new_board[start_square] == @piece.white[5]
+  def pawn(start_cord, end_cord, board)
+    if board[@notation.number_from_cord(start_cord)] == @piece.white[5]
       cords = PAWN_WHITE_CORDS
       start_num = 6
       mid_cord = [end_cord[0], end_cord[1] + 1]
@@ -156,26 +156,24 @@ class Moves
       start_num = 1
       mid_cord = [end_cord[0], end_cord[1] - 1]
     end
-    pawn_moves(cords, start_num, start_cord, end_cord, mid_cord)
+    pawn_moves(cords, start_num, start_cord, end_cord, mid_cord, board)
   end
 
-  def pawn_moves(cords, start_num, start_cord, end_cord, mid_cord)
+  def pawn_moves(cords, start_num, start_cord, end_cord, mid_cord, board)
     pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
     diag_capture = cords[2..3].include?(pawn_test)
-    return true if start_cord[1] == start_num && cords[1] == pawn_test && !pawn_capture(end_cord) && pawn_mid(mid_cord)
-    return true if cords[0] == pawn_test && !pawn_capture(end_cord) || (diag_capture && pawn_capture(end_cord))
+    return true if start_cord[1] == start_num && cords[1] == pawn_test && !pawn_capture(end_cord, board) && pawn_mid(mid_cord, board)
+    return true if cords[0] == pawn_test && !pawn_capture(end_cord, board) || (diag_capture && pawn_capture(end_cord, board))
   end
 
   # true if diag capture and using the negation if moving ahead
-  def pawn_capture(end_cord)
-    notation = Notation.new
-    @new_board[notation.number_from_cord(end_cord)] != ' '
+  def pawn_capture(end_cord, board)
+    board[@notation.number_from_cord(end_cord)] != ' '
   end
 
   # checking that there's no piece one square ahead if moving 2 squares
-  def pawn_mid(mid_cord)
-    notation = Notation.new
-    @new_board[notation.number_from_cord(mid_cord)] == ' '
+  def pawn_mid(mid_cord, board)
+    board[@notation.number_from_cord(mid_cord)] == ' '
   end
 
   # castling
@@ -242,19 +240,19 @@ class Moves
     @new_board[@moveset[3]] = ' '
   end
 
-  # checking
+  # checks
   def king_checks(board)
     return true if knight_check(king_coordinates(board), board) == 'check'
     return true if bishop_check(king_coordinates(board), board) == 'check'
     return true if rook_check(king_coordinates(board), board) == 'check'
     return true if queen_check(king_coordinates(board), board) == 'check'
+    return true if pawn_check(king_coordinates(board), board) == 'check'
 
     false
   end
 
   def king_coordinates(board)
-    notation = Notation.new
-    notation.cord_from_number(board.index(@king_color[0]))
+    @notation.cord_from_number(board.index(@king_color[0]))
   end
 
   def piece_color(turn)
@@ -264,9 +262,8 @@ class Moves
 
   # create an array of cords of the requested piece type
   def find_all_piece_by_type(num, board)
-    notation = Notation.new
     @all_pieces = []
-    board.each_with_index { |p, i| @all_pieces << notation.cord_from_number(i) if p == @attack_color[num] }
+    board.each_with_index { |p, i| @all_pieces << @notation.cord_from_number(i) if p == @attack_color[num] }
   end
 
   def queen_check(king_cord, board)
@@ -289,21 +286,8 @@ class Moves
     @all_pieces.each { |n| return 'check' if knight(n, king_cord) }
   end
 
-  # def pawn_check(king_cord, board)
-  #   find_all_piece_by_type(5, board)
-  #   @all_pieces.each { |n| return 'check' if pawn(n, king_cord) }
-  # end
-
-  # new game
-  def resigns
-    ['8', @piece.black[2], @piece.black[4], @piece.black[3], @piece.black[1], @piece.black[0], @piece.black[3], @piece.black[4], @piece.black[2],
-     '7', @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5],
-     '6', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-     '5', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-     '4', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-     '3', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-     '2', @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5],
-     '1', @piece.white[2], @piece.white[4], @piece.white[3], @piece.white[1], @piece.white[0], @piece.white[3], @piece.white[4], @piece.white[2],
-     ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+  def pawn_check(king_cord, board)
+    find_all_piece_by_type(5, board)
+    @all_pieces.each { |n| return 'check' if pawn(n, king_cord, board) }
   end
 end

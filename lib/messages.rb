@@ -21,10 +21,6 @@ class Messages
     [@player1, @player2]
   end
 
-  def greeting
-    puts "white pieces: #{@player1} black pieces: #{@player2}  "
-  end
-
   def ask_move
     gets.chomp.upcase
   end
