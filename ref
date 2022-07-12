@@ -38,7 +38,7 @@
  
  
 
-checks
+checks - pawns still
 checkmate
 castling short and long
 
@@ -57,10 +57,10 @@ checks - paths to king in current position
 
 pawns -- moving 2 spaces with pawn 1 square ahead -DONE
 
-message for still in check
+message for still in check - DONE
 
 
-issue with moving king for knight checking function
+issue with moving king for knight checking function - DONE
 
 
 

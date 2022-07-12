@@ -12,6 +12,7 @@ class Moves
 
   def initialize
     @piece = Pieces.new
+    @castle_rights = 0
     @new_board =
       ['8', @piece.black[2], @piece.black[4], @piece.black[3], @piece.black[1], @piece.black[0], @piece.black[3], @piece.black[4], @piece.black[2],
        '7', @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5],
@@ -83,17 +84,14 @@ class Moves
     @path.each { |c| return false if board[notation.number_from_cord(c)] != ' ' }
   end
 
-  # king
   def king(start_cord, end_cord)
     KING_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
   end
 
-  # queen
   def queen(start_cord, end_cord, board)
     rook(start_cord, end_cord, board) || bishop(start_cord, end_cord, board)
   end
 
-  # rooks
   def rook(start_cord, end_cord, board)
     return unless (start_cord[0] - end_cord[0]).zero? || (start_cord[1] - end_cord[1]).zero?
 
@@ -119,7 +117,6 @@ class Moves
     end
   end
 
-  # bishops
   def bishop(start_cord, end_cord, board)
     return unless (end_cord[0] - start_cord[0]).abs == (end_cord[1] - start_cord[1]).abs
 
@@ -145,12 +142,10 @@ class Moves
     end
   end
 
-  # knights
   def knight(start_cord, end_cord)
     KNIGHT_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
   end
 
-  # pawns
   def pawn(start_cord, end_cord, start_square)
     if @new_board[start_square] == @piece.white[5]
       cords = PAWN_WHITE_CORDS
@@ -181,6 +176,26 @@ class Moves
   def pawn_mid(mid_cord)
     notation = Notation.new
     @new_board[notation.number_from_cord(mid_cord)] == ' '
+  end
+
+  # castling
+  def castle_short
+    @new_board[70] = @new_board[68]
+    @new_board[68] = ' '
+    @new_board[69] = @new_board[71]
+    @new_board[71] = ' '
+  end
+
+  def move_counter
+    @castle_rights += 1 if @new_board[68] != @piece.white[0] || @new_board[71] != @piece.white[2]
+  end
+
+  def castle_long; end
+
+  def valid_castle_long; end
+
+  def valid_castle_short
+    @new_board[69] == ' ' && new_board[70] == ' ' && @castle_rights.zero?
   end
 
   # checking

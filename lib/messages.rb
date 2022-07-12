@@ -41,8 +41,6 @@ class Messages
     case choice
     when 'S'
       puts 'Game Saved!'
-    when 'R'
-      puts 'Player resigns. New game started.'
     when 'L'
       puts 'Game Loaded!'
     when 'Q'
@@ -56,7 +54,6 @@ class Messages
     puts '------------------------'
     puts 'S - saves game'
     puts 'L - loads game'
-    puts 'R - resign and start new game'
     puts 'Q - quits the program'
     puts 'H - help menu'
     puts '------------------------'
