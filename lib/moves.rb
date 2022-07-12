@@ -6,13 +6,13 @@ require_relative 'cords_module'
 
 # accepts player inputs to update the board and pieces positions
 class Moves
-  attr_accessor(:new_board, :test_board)
+  attr_accessor(:new_board, :test_board, :castle_rights)
 
   include Coordinates
 
   def initialize
     @piece = Pieces.new
-    @castle_rights = 0
+    @castle_rights = [0, 0, 0, 0]
     @new_board =
       ['8', @piece.black[2], @piece.black[4], @piece.black[3], @piece.black[1], @piece.black[0], @piece.black[3], @piece.black[4], @piece.black[2],
        '7', @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5],
@@ -179,23 +179,67 @@ class Moves
   end
 
   # castling
-  def castle_short
-    @new_board[70] = @new_board[68]
-    @new_board[68] = ' '
-    @new_board[69] = @new_board[71]
-    @new_board[71] = ' '
+  def castle(player_move, turn)
+    select_castle(player_move, turn)
+    if valid_castle && castling_rights(player_move, turn)
+      castle_move
+    else
+      false
+    end
+  end
+
+  def select_castle(player_move, turn)
+    @moveset = if player_move == '0-0' && turn
+                 CASTLE_SHORT_WHITE
+               elsif player_move == '0-0' && !turn
+                 CASTLE_SHORT_BLACK
+               elsif player_move == '0-0-0' && turn
+                 CASTLE_LONG_WHITE
+               else
+                 CASTLE_LONG_BLACK
+               end
+  end
+
+  def valid_castle
+    if @moveset.length == 4
+      @new_board[@moveset[0]] == ' ' && new_board[@moveset[2]] == ' '
+    else
+      @new_board[@moveset[0]] == ' ' && new_board[@moveset[2]] == ' ' && new_board[@moveset[4]] == ' '
+    end
   end
 
   def move_counter
-    @castle_rights += 1 if @new_board[68] != @piece.white[0] || @new_board[71] != @piece.white[2]
+    if @new_board[CASTLE_SHORT_WHITE[1]] != @piece.white[0] || @new_board[CASTLE_SHORT_WHITE[3]] != @piece.white[2]
+      @castle_rights[0] += 1
+    end
+    if @new_board[CASTLE_LONG_WHITE[1]] != @piece.white[0] || @new_board[CASTLE_LONG_WHITE[3]] != @piece.white[2]
+      @castle_rights[1] += 1
+    end
+    if @new_board[CASTLE_SHORT_BLACK[1]] != @piece.black[0] || @new_board[CASTLE_SHORT_BLACK[3]] != @piece.black[2]
+      @castle_rights[2] += 1
+    end
+    if @new_board[CASTLE_LONG_BLACK[1]] != @piece.black[0] || @new_board[CASTLE_LONG_BLACK[3]] != @piece.black[2]
+      @castle_rights[3] += 1
+    end
   end
 
-  def castle_long; end
+  def castling_rights(player_move, turn)
+    if player_move == '0-0' && turn
+      @castle_rights[0].zero?
+    elsif player_move == '0-0-0' && turn
+      @castle_rights[1].zero?
+    elsif player_move == '0-0' && !turn
+      @castle_rights[2].zero?
+    else
+      @castle_rights[3].zero?
+    end
+  end
 
-  def valid_castle_long; end
-
-  def valid_castle_short
-    @new_board[69] == ' ' && new_board[70] == ' ' && @castle_rights.zero?
+  def castle_move
+    @new_board[@moveset[0]] = @new_board[@moveset[1]]
+    @new_board[@moveset[1]] = ' '
+    @new_board[@moveset[2]] = @new_board[@moveset[3]]
+    @new_board[@moveset[3]] = ' '
   end
 
   # checking

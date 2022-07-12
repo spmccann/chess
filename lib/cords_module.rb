@@ -12,4 +12,8 @@ module Coordinates
   BISHOP_CORDS = [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [-1, -1], [-2, -2], [-3, -3], [-4, -4],
                   [-5, -5], [-6, -6], [-7, -7], [1, -1], [2, -2], [3, -3], [4, -4], [5, -5], [6, -6], [7, -7],
                   [-1, 1], [-2, 2], [-3, 3], [-4, 4], [-5, 5], [-6, 6], [-7, 7]].freeze
+  CASTLE_SHORT_WHITE = [70, 68, 69, 71].freeze
+  CASTLE_SHORT_BLACK = [7, 5, 6, 8].freeze
+  CASTLE_LONG_WHITE = [66, 68, 67, 64, 65].freeze
+  CASTLE_LONG_BLACK = [3, 5, 4, 1, 2].freeze
 end

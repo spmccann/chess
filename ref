@@ -40,13 +40,15 @@
 
 checks - pawns still
 checkmate
-castling short and long
+castling short and long - done except for checks
 
 promotion
 stalemate
 en passant
+
 dead position
 
+resigns
 draw by agreement
 three-fold repetition
 

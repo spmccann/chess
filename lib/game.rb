@@ -18,7 +18,7 @@ messages = Messages.new
 messages.welcome
 messages.names_request
 
-serialize = Serialize.new(moves.new_board, messages.names, turn)
+serialize = Serialize.new(moves.new_board, messages.names, turn, moves.castle_rights)
 messages.greeting
 
 while game_loop
@@ -42,19 +42,16 @@ while game_loop
       moves.new_board = serialize.game
       board = Board.new(serialize.game)
       turn = serialize.turn
+      moves.castle_rights = serialize.castle_rights
     when 'Q'
       game_loop = false
     end
   elsif %w[0-0 0-0-0].include?(player_move)
     system 'clear'
-    if player_move == '0-0' && moves.valid_castle_short
-      moves.castle_short
-      turn = !turn
-    elsif player_move == '0-0-0' && moves.valid_castle_long
-      moves.castle_long
+    if moves.castle(player_move, turn)
       turn = !turn
     else
-      puts 'Castling is an invalid move'
+      messages.invalid_castle
     end
   # proceed with the move if player input has the correct notation
   elsif notation.notation_valid_format(player_move)

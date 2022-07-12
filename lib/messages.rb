@@ -71,6 +71,10 @@ class Messages
     puts 'Invalid chess move.'
   end
 
+  def invalid_castle
+    puts 'Castling here is an invalid move'
+  end
+
   def next_turn
     puts "-----------Chess-----------\n #{@player1} vs. #{@player2} |'H' for help\n"
   end
