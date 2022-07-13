@@ -16,4 +16,6 @@ module Coordinates
   CASTLE_SHORT_BLACK = [7, 5, 6, 8].freeze
   CASTLE_LONG_WHITE = [66, 68, 67, 64, 65].freeze
   CASTLE_LONG_BLACK = [3, 5, 4, 1, 2].freeze
+  PROMOTION_SQUARE_WHITE = [1, 2, 3, 4, 5, 6, 7, 8].freeze
+  PROMOTION_SQUARE_BLACK = [64, 65, 66, 67, 68, 69, 70, 71].freeze
 end

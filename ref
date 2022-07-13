@@ -38,11 +38,11 @@
  
  
 
-checks - pawns and king left
+checks - king left
 checkmate
 castling short and long - done except for checks
 
-promotion
+promotion - DONE (queen only)
 stalemate
 en passant
 
@@ -53,8 +53,6 @@ draw by agreement
 three-fold repetition
 
 
-
-checks - paths to king in current position
 
 
 pawns -- moving 2 spaces with pawn 1 square ahead -DONE

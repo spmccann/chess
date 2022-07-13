@@ -290,4 +290,16 @@ class Moves
     find_all_piece_by_type(5, board)
     @all_pieces.each { |n| return 'check' if pawn(n, king_cord, board) }
   end
+
+  # promotions
+  def promotion?(turn)
+    pawn_list = []
+    if turn
+      @new_board.each_with_index { |p, i| pawn_list << i if p == @piece.white[5] }
+      pawn_list.each { |i| @new_board[i] = @piece.white[1] if PROMOTION_SQUARE_WHITE.include?(i) }
+    else
+      @new_board.each_with_index { |p, i| pawn_list << i if p == @piece.black[5] }
+      pawn_list.each { |i| @new_board[i] = @piece.black[1] if PROMOTION_SQUARE_BLACK.include?(i) }
+    end
+  end
 end
