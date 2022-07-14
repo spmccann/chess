@@ -5,6 +5,8 @@ require_relative 'messages'
 require_relative 'notation'
 require_relative 'moves'
 require_relative 'serialize'
+require_relative 'check'
+require_relative 'special'
 
 game_loop = true
 turn = true
@@ -18,16 +20,22 @@ messages = Messages.new
 messages.welcome
 messages.names_request
 
-serialize = Serialize.new(moves.new_board, messages.names, turn, moves.castle_rights)
+check = Check.new
+
+each_piece = EachPiece.new
+
+special = SpecialMoves.new
+
+serialize = Serialize.new(moves.new_board, messages.names, turn, special.castle_rights)
 
 while game_loop
   # inform the player it's their turn and ask for a move
   messages.next_turn
   board = Board.new(moves.new_board)
   board.display_board
-  moves.piece_color(turn)
-  moves.move_counter
-  messages.check(turn) if moves.king_checks(moves.new_board)
+  check.piece_color(turn)
+  special.move_counter
+  messages.check(turn) if check.king_checks(moves.new_board)
   messages.your_move(turn)
   player_move = messages.ask_move
   # Options (save, load, new game, quit)
@@ -41,14 +49,14 @@ while game_loop
       moves.new_board = serialize.game
       board = Board.new(serialize.game)
       turn = serialize.turn
-      moves.castle_rights = serialize.castle_rights
+      special.castle_rights = serialize.castle_rights
     when 'Q'
       game_loop = false
     end
   # castling
   elsif %w[0-0 0-0-0].include?(player_move)
     system 'clear'
-    if moves.castle(player_move, turn)
+    if special.castle(player_move, turn)
       turn = !turn
     else
       messages.invalid_castle
@@ -58,17 +66,17 @@ while game_loop
     notation.submit_move(player_move)
     # checks that moves follow game rules
     if moves.basic_move_rules(notation.input_start, notation.input_end,
-                              turn) && moves.piece_picker(notation.cords_start, notation.cords_end,
-                                                          notation.input_start, moves.new_board)
+                              turn) && each_piece.piece_picker(notation.cords_start, notation.cords_end,
+                                                               notation.input_start, moves.new_board)
       # verifies a player in check makes a move out and also not in
       moves.test_moves(notation.input_start, notation.input_end)
-      if moves.king_checks(moves.test_board)
+      if check.king_checks(moves.test_board)
         system 'clear'
         next
       end
       # make the move on the board
       moves.make_moves(notation.input_start, notation.input_end)
-      moves.promotion?(turn)
+      special.promotion?(turn)
       turn = !turn
       system 'clear'
     else
