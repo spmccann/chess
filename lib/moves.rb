@@ -3,20 +3,33 @@
 require_relative 'pieces'
 require_relative 'notation'
 require_relative 'cords_module'
-require_relative 'position'
 
 # accepts player inputs to update the board and pieces positions
-class Moves < Position
-  attr_accessor(:test_board, :castle_rights)
+class Moves
+  attr_accessor(:new_board, :test_board, :castle_rights)
 
   include Coordinates
 
   def initialize
-    super
     @piece = Pieces.new
     @notation = Notation.new
     @castle_rights = [0, 0, 0, 0]
+    @new_board =
+      ['8', @piece.black[2], @piece.black[4], @piece.black[3], @piece.black[1], @piece.black[0], @piece.black[3], @piece.black[4], @piece.black[2],
+       '7', @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5],
+       '6', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+       '5', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+       '4', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+       '3', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+       '2', @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5],
+       '1', @piece.white[2], @piece.white[4], @piece.white[3], @piece.white[1], @piece.white[0], @piece.white[3], @piece.white[4], @piece.white[2],
+       ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
   end
+
+  # def helper_board_square_numbers
+  #   positions = [*0..80]
+  #   positions.map! { |f| format('%02d', f) }
+  # end
 
   # update the board
   def make_moves(start_square, end_square)
@@ -149,11 +162,8 @@ class Moves < Position
   def pawn_moves(cords, start_num, start_cord, end_cord, mid_cord, board)
     pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
     diag_capture = cords[2..3].include?(pawn_test)
-    return true if start_cord[1] == start_num && cords[1] == pawn_test && !pawn_capture(end_cord,
-                                                                                        board) && pawn_mid(mid_cord,
-                                                                                                           board)
-    return true if cords[0] == pawn_test && !pawn_capture(end_cord,
-                                                          board) || (diag_capture && pawn_capture(end_cord, board))
+    return true if start_cord[1] == start_num && cords[1] == pawn_test && !pawn_capture(end_cord, board) && pawn_mid(mid_cord, board)
+    return true if cords[0] == pawn_test && !pawn_capture(end_cord, board) || (diag_capture && pawn_capture(end_cord, board))
   end
 
   # true if diag capture and using the negation if moving ahead
@@ -190,9 +200,9 @@ class Moves < Position
 
   def valid_castle
     if @moveset.length == 4
-      @new_board[@moveset[0]] == ' ' && @new_board[@moveset[2]] == ' '
+      @new_board[@moveset[0]] == ' ' && new_board[@moveset[2]] == ' '
     else
-      @new_board[@moveset[0]] == ' ' && @new_board[@moveset[2]] == ' ' && @new_board[@moveset[4]] == ' '
+      @new_board[@moveset[0]] == ' ' && new_board[@moveset[2]] == ' ' && new_board[@moveset[4]] == ' '
     end
   end
 
@@ -285,13 +295,11 @@ class Moves < Position
   def promotion?(turn)
     pawn_list = []
     if turn
-      pawn = @piece.white[5]
-      promo = PROMOTION_SQUARE_BLACK
+      @new_board.each_with_index { |p, i| pawn_list << i if p == @piece.white[5] }
+      pawn_list.each { |i| @new_board[i] = @piece.white[1] if PROMOTION_SQUARE_WHITE.include?(i) }
     else
-      pawn = @piece.black[5]
-      promo = PROMOTION_SQUARE_WHITE
+      @new_board.each_with_index { |p, i| pawn_list << i if p == @piece.black[5] }
+      pawn_list.each { |i| @new_board[i] = @piece.black[1] if PROMOTION_SQUARE_BLACK.include?(i) }
     end
-    @new_board.each_with_index { |p, i| pawn_list << i if p == pawn }
-    pawn_list.each { |i| @new_board[i] = @piece.white[1] if promo.include?(i) }
   end
 end

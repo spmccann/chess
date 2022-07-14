@@ -40,7 +40,7 @@ class Messages
     when 'L'
       puts 'Game Loaded!'
     when 'Q'
-      puts 'Quit Game.'
+      puts 'Quit Game. Goodbye'
     when 'H'
       help_menu
     end
