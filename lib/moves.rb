@@ -200,9 +200,9 @@ class Moves
 
   def valid_castle
     if @moveset.length == 4
-      @new_board[@moveset[0]] == ' ' && new_board[@moveset[2]] == ' '
+      @new_board[@moveset[0]] == ' ' && @new_board[@moveset[2]] == ' '
     else
-      @new_board[@moveset[0]] == ' ' && new_board[@moveset[2]] == ' ' && new_board[@moveset[4]] == ' '
+      @new_board[@moveset[0]] == ' ' && @new_board[@moveset[2]] == ' ' && @new_board[@moveset[4]] == ' '
     end
   end
 
