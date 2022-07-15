@@ -65,7 +65,7 @@ class Moves
   def piece_picker(start_cord, end_cord, start_square, board)
     case @new_board[start_square]
     when @piece.white[0], @piece.black[0]
-      king(start_cord, end_cord)
+      king(start_cord, end_cord, board)
     when @piece.white[1], @piece.black[1]
       queen(start_cord, end_cord, board)
     when @piece.white[2], @piece.black[2]
@@ -84,8 +84,8 @@ class Moves
     @path.each { |c| return false if board[@notation.number_from_cord(c)] != ' ' }
   end
 
-  def king(start_cord, end_cord)
-    KING_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
+  def king(start_cord, end_cord, board)
+    KING_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]) unless no_king_check(board)
   end
 
   def queen(start_cord, end_cord, board)
@@ -162,8 +162,11 @@ class Moves
   def pawn_moves(cords, start_num, start_cord, end_cord, mid_cord, board)
     pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
     diag_capture = cords[2..3].include?(pawn_test)
-    return true if start_cord[1] == start_num && cords[1] == pawn_test && !pawn_capture(end_cord, board) && pawn_mid(mid_cord, board)
-    return true if cords[0] == pawn_test && !pawn_capture(end_cord, board) || (diag_capture && pawn_capture(end_cord, board))
+    return true if start_cord[1] == start_num && cords[1] == pawn_test && !pawn_capture(end_cord,
+                                                                                        board) && pawn_mid(mid_cord,
+                                                                                                           board)
+    return true if cords[0] == pawn_test && !pawn_capture(end_cord,
+                                                          board) || (diag_capture && pawn_capture(end_cord, board))
   end
 
   # true if diag capture and using the negation if moving ahead
@@ -291,15 +294,24 @@ class Moves
     @all_pieces.each { |n| return 'check' if pawn(n, king_cord, board) }
   end
 
+  def no_king_check(board)
+    attack_king = @notation.cord_from_number(board.index(@attack_color[0]))
+    cords = []
+    OTHER_KING.each { |k| cords << [attack_king[0] + k[0], attack_king[1] + k[1]] }
+    cords.each { |k| return true if board[@notation.number_from_cord(k)] == @king_color[0] }
+  end
+
   # promotions
   def promotion?(turn)
     pawn_list = []
     if turn
-      @new_board.each_with_index { |p, i| pawn_list << i if p == @piece.white[5] }
-      pawn_list.each { |i| @new_board[i] = @piece.white[1] if PROMOTION_SQUARE_WHITE.include?(i) }
+      pawn = @piece.white
+      promo = PROMOTION_SQUARE_WHITE
     else
-      @new_board.each_with_index { |p, i| pawn_list << i if p == @piece.black[5] }
-      pawn_list.each { |i| @new_board[i] = @piece.black[1] if PROMOTION_SQUARE_BLACK.include?(i) }
+      pawn = @piece.black
+      promo = PROMOTION_SQUARE_BLACK
     end
+    @new_board.each_with_index { |p, i| pawn_list << i if p == pawn[5] }
+    pawn_list.each { |i| @new_board[i] = pawn[1] if promo.include?(i) }
   end
 end
