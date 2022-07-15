@@ -85,7 +85,7 @@ class Moves
   end
 
   def king(start_cord, end_cord, board)
-    KING_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]) unless no_king_check(board)
+    KING_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]) unless no_king_check(board, end_cord)
   end
 
   def queen(start_cord, end_cord, board)
@@ -294,11 +294,12 @@ class Moves
     @all_pieces.each { |n| return 'check' if pawn(n, king_cord, board) }
   end
 
-  def no_king_check(board)
-    attack_king = @notation.cord_from_number(board.index(@attack_color[0]))
+  def no_king_check(board, end_cord)
+    target_king = @notation.cord_from_number(board.index(@attack_color[0]))
     cords = []
-    OTHER_KING.each { |k| cords << [attack_king[0] + k[0], attack_king[1] + k[1]] }
-    cords.each { |k| return true if board[@notation.number_from_cord(k)] == @king_color[0] }
+    KING_CORDS.each { |k| cords << [target_king[0] + k[0], target_king[1] + k[1]] }
+    cords.each { |k| return true if k == end_cord }
+    false
   end
 
   # promotions

@@ -70,7 +70,7 @@ while game_loop
       moves.make_moves(notation.input_start, notation.input_end)
       moves.promotion?(turn)
       turn = !turn
-      # system 'clear'
+      system 'clear'
     else
       system 'clear'
       messages.invalid_chess_move
