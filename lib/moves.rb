@@ -26,11 +26,6 @@ class Moves
        ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
   end
 
-  # def helper_board_square_numbers
-  #   positions = [*0..80]
-  #   positions.map! { |f| format('%02d', f) }
-  # end
-
   # update the board
   def make_moves(start_square, end_square)
     @new_board[end_square] = @new_board[start_square]
@@ -263,7 +258,7 @@ class Moves
     @king_color = turn ? @piece.white : @piece.black
   end
 
-  # create an array of cords of the requested piece type
+  # cords of the requested piece type
   def find_all_piece_by_type(num, board)
     @all_pieces = []
     board.each_with_index { |p, i| @all_pieces << @notation.cord_from_number(i) if p == @attack_color[num] }
@@ -295,9 +290,9 @@ class Moves
   end
 
   def no_king_check(board, end_cord)
-    target_king = @notation.cord_from_number(board.index(@attack_color[0]))
+    current_king = @notation.cord_from_number(board.index(@attack_color[0]))
     cords = []
-    KING_CORDS.each { |k| cords << [target_king[0] + k[0], target_king[1] + k[1]] }
+    KING_CORDS.each { |k| cords << [current_king[0] + k[0], current_king[1] + k[1]] }
     cords.each { |k| return true if k == end_cord }
     false
   end
@@ -315,4 +310,23 @@ class Moves
     @new_board.each_with_index { |p, i| pawn_list << i if p == pawn[5] }
     pawn_list.each { |i| @new_board[i] = pawn[1] if promo.include?(i) }
   end
+
+  # checkmate
+  def checkmate; end
+
+  def cm_king_moves(turn)
+    current_king = @new_board.index(@king_color[0])
+    current_king_cords = @notation.cord_from_number(@new_board.index(@king_color[0]))
+    possible_king_moves = []
+    escape = []
+    KING_CORDS.each { |k| possible_king_moves << @notation.number_from_cord([current_king_cords[0] + k[0], current_king_cords[1] + k[1]]) }
+    possible_king_moves.compact!
+    possible_king_moves.each do |move|
+      test_moves(current_king, move) if basic_move_rules(current_king, move, turn)
+      escape << true if king_checks(@test_board) == false
+    end
+    return puts 'checkmate' unless escape.any?
+  end
+
+  def cm_blocking; end
 end

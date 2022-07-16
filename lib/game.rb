@@ -27,6 +27,7 @@ while game_loop
   board.display_board
   moves.piece_color(turn)
   moves.move_counter
+  moves.cm_king_moves(turn) if moves.king_checks(moves.new_board)
   messages.check(turn) if moves.king_checks(moves.new_board)
   messages.your_move(turn)
   player_move = messages.ask_move
