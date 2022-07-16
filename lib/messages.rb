@@ -78,4 +78,8 @@ class Messages
   def check(turn)
     turn ? puts("#{@player1}, you're in check!") : puts("#{@player2}, you're in check!")
   end
+
+  def checkmate(turn)
+    turn ? puts("#{@player2}, that's checkmate. You've won.") : puts("#{@player1}, that's checkmate. You've won.")
+  end
 end

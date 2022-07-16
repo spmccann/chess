@@ -312,7 +312,9 @@ class Moves
   end
 
   # checkmate
-  def checkmate; end
+  def checkmate(turn)
+    cm_king_moves(turn) == 'checkmate'
+  end
 
   def cm_king_moves(turn)
     current_king = @new_board.index(@king_color[0])
@@ -325,8 +327,10 @@ class Moves
       test_moves(current_king, move) if basic_move_rules(current_king, move, turn)
       escape << true if king_checks(@test_board) == false
     end
-    return puts 'checkmate' unless escape.any?
+    return 'checkmate' unless escape.any?
   end
 
-  def cm_blocking; end
+  def cm_blocking
+    
+  end
 end
