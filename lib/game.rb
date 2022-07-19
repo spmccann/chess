@@ -27,8 +27,8 @@ while game_loop
   board.display_board
   moves.piece_color(turn)
   moves.move_counter
-  if moves.king_checks(moves.new_board)
-    if moves.checkmate(turn)
+  if moves.king_checks(moves.king_coordinates(moves.new_board), moves.new_board)
+    if moves.checkmate(turn, moves.new_board)
       messages.checkmate(turn)
       # break
     else
@@ -70,7 +70,7 @@ while game_loop
                                                           notation.input_start, moves.new_board)
       # verifies a player in check makes a move out and also not in
       moves.test_moves(notation.input_start, notation.input_end)
-      if moves.king_checks(moves.test_board)
+      if moves.king_checks(moves.king_coordinates(moves.test_board), moves.test_board)
         system 'clear'
         next
       end

@@ -6,7 +6,7 @@ require_relative 'cords_module'
 
 # accepts player inputs to update the board and pieces positions
 class Moves
-  attr_accessor(:new_board, :test_board, :castle_rights)
+  attr_accessor(:new_board, :test_board, :castle_rights, :checkers)
 
   include Coordinates
 
@@ -14,6 +14,7 @@ class Moves
     @piece = Pieces.new
     @notation = Notation.new
     @castle_rights = [0, 0, 0, 0]
+    @checkers = []
     @new_board =
       ['8', @piece.black[2], @piece.black[4], @piece.black[3], @piece.black[1], @piece.black[0], @piece.black[3], @piece.black[4], @piece.black[2],
        '7', @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5],
@@ -74,13 +75,14 @@ class Moves
     end
   end
 
-  # checks if any pieces are way of requested move
+  # checks if any pieces are way of move
   def clear_path?(board)
     @path.each { |c| return false if board[@notation.number_from_cord(c)] != ' ' }
   end
 
   def king(start_cord, end_cord, board)
-    KING_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]) unless no_king_check(board, end_cord)
+    KING_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]) unless no_king_check(board,
+                                                                                                         end_cord)
   end
 
   def queen(start_cord, end_cord, board)
@@ -239,12 +241,13 @@ class Moves
   end
 
   # checks
-  def king_checks(board)
-    return true if knight_check(king_coordinates(board), board) == 'check'
-    return true if bishop_check(king_coordinates(board), board) == 'check'
-    return true if rook_check(king_coordinates(board), board) == 'check'
-    return true if queen_check(king_coordinates(board), board) == 'check'
-    return true if pawn_check(king_coordinates(board), board) == 'check'
+  def king_checks(end_cord, board)
+    knight_check(end_cord, board)
+    bishop_check(end_cord, board)
+    rook_check(end_cord, board)
+    queen_check(end_cord, board)
+    pawn_check(end_cord, board)
+    return true && @checkers = [] unless @checkers.empty?
 
     false
   end
@@ -258,35 +261,34 @@ class Moves
     @king_color = turn ? @piece.white : @piece.black
   end
 
-  # cords of the requested piece type
   def find_all_piece_by_type(num, board)
     @all_pieces = []
     board.each_with_index { |p, i| @all_pieces << @notation.cord_from_number(i) if p == @attack_color[num] }
   end
 
-  def queen_check(king_cord, board)
+  def queen_check(end_cord, board)
     find_all_piece_by_type(1, board)
-    @all_pieces.each { |q| return 'check' if queen(q, king_cord, board) }
+    @all_pieces.each { |q| @checkers << q if queen(q, end_cord, board) }
   end
 
-  def rook_check(king_cord, board)
+  def rook_check(end_cord, board)
     find_all_piece_by_type(2, board)
-    @all_pieces.each { |r| return 'check' if rook(r, king_cord, board) }
+    @all_pieces.each { |r| @checkers << r if rook(r, end_cord, board) }
   end
 
-  def bishop_check(king_cord, board)
+  def bishop_check(end_cord, board)
     find_all_piece_by_type(3, board)
-    @all_pieces.each { |b| return 'check' if bishop(b, king_cord, board) }
+    @all_pieces.each { |b| @checkers << b if bishop(b, end_cord, board) }
   end
 
-  def knight_check(king_cord, board)
+  def knight_check(end_cord, board)
     find_all_piece_by_type(4, board)
-    @all_pieces.each { |n| return 'check' if knight(n, king_cord) }
+    @all_pieces.each { |n| @checkers << n if knight(n, end_cord) }
   end
 
-  def pawn_check(king_cord, board)
+  def pawn_check(end_cord, board)
     find_all_piece_by_type(5, board)
-    @all_pieces.each { |n| return 'check' if pawn(n, king_cord, board) }
+    @all_pieces.each { |p| @checkers << p if pawn(p, end_cord, board) }
   end
 
   def no_king_check(board, end_cord)
@@ -312,8 +314,8 @@ class Moves
   end
 
   # checkmate
-  def checkmate(turn)
-    cm_king_moves(turn) == 'checkmate'
+  def checkmate(turn, board)
+    cm_king_moves(turn) == 'checkmate' && cm_block(board) == 'checkmate'
   end
 
   def cm_king_moves(turn)
@@ -321,16 +323,51 @@ class Moves
     current_king_cords = @notation.cord_from_number(@new_board.index(@king_color[0]))
     possible_king_moves = []
     escape = []
-    KING_CORDS.each { |k| possible_king_moves << @notation.number_from_cord([current_king_cords[0] + k[0], current_king_cords[1] + k[1]]) }
+    KING_CORDS.each do |k|
+      possible_king_moves << @notation.number_from_cord([current_king_cords[0] + k[0], current_king_cords[1] + k[1]])
+    end
     possible_king_moves.compact!
     possible_king_moves.each do |move|
       test_moves(current_king, move) if basic_move_rules(current_king, move, turn)
-      escape << true if king_checks(@test_board) == false
+      escape << true if king_checks(king_coordinates(@test_board), @test_board) == false
     end
     return 'checkmate' unless escape.any?
   end
 
-  def cm_blocking
-    
+  def cm_block(board)
+    escape = []
+    if @checkers.length == 1
+      @checkers.each do |piece|
+        movement(piece, king_coordinates(board))
+        @full_path.each { |square| escape << true if king_checks(square, board) == false }
+      end
+    else
+      'checkmate'
+    end
+    return 'checkmate' unless escape.any?
+  end
+
+  def movement(first, last)
+    @full_path = []
+    @full_path << first
+    while first != last
+      @full_path << if first[0] < last[0] && first[1] < last[1]
+                      [first[0] + 1, first[1] + 1]
+                    elsif first[0] > last[0] && first[1] > last[1]
+                      [first[0] - 1, first[1] - 1]
+                    elsif first[0] > last[0] && first[1] < last[1]
+                      [first[0] - 1, first[1] + 1]
+                    elsif first[0] < last[0] && first[1] > last[1]
+                      [first[0] + 1, first[1] - 1]
+                    elsif first[0] < last[0] && first[1] == last[1]
+                      [first[0] + 1, first[1]]
+                    elsif first[0] > last[0] && first[1] == last[1]
+                      [first[0] - 1, first[1]]
+                    elsif first[0] == last[0] && first[1] < last[1]
+                      [first[0], first[1] + 1]
+                    else
+                      [first[0], first[1] - 1]
+                    end
+    end
   end
 end

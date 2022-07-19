@@ -38,7 +38,7 @@
  
  
 
-checks - king left
+checks - castling and other special moves
 checkmate
 castling short and long - done except for checks
 
@@ -63,5 +63,5 @@ message for still in check - DONE
 issue with moving king for knight checking function - DONE
 
 
-
+find piece(s) initiating check, array of piece and path squares, test if other pieces can move to block/capture
 
