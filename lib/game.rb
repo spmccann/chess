@@ -22,6 +22,7 @@ serialize = Serialize.new(moves.new_board, messages.names, turn, moves.castle_ri
 
 while game_loop
   # inform the player it's their turn and ask for a move
+  serialize.turn = turn
   messages.next_turn
   board = Board.new(moves.new_board)
   board.display_board

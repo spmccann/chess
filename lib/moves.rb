@@ -247,7 +247,7 @@ class Moves
     rook_check(end_cord, board)
     queen_check(end_cord, board)
     pawn_check(end_cord, board)
-    return true && @checkers = [] unless @checkers.empty?
+    return true unless @checkers.empty?
 
     false
   end
@@ -323,6 +323,7 @@ class Moves
     current_king_cords = @notation.cord_from_number(@new_board.index(@king_color[0]))
     possible_king_moves = []
     escape = []
+    @checkers = []
     KING_CORDS.each do |k|
       possible_king_moves << @notation.number_from_cord([current_king_cords[0] + k[0], current_king_cords[1] + k[1]])
     end
@@ -331,43 +332,45 @@ class Moves
       test_moves(current_king, move) if basic_move_rules(current_king, move, turn)
       escape << true if king_checks(king_coordinates(@test_board), @test_board) == false
     end
+    p @checkers
+    p escape
+    @checkers = []
     return 'checkmate' unless escape.any?
   end
 
   def cm_block(board)
     escape = []
-    if @checkers.length == 1
-      @checkers.each do |piece|
-        movement(piece, king_coordinates(board))
-        @full_path.each { |square| escape << true if king_checks(square, board) == false }
-      end
-    else
-      'checkmate'
-    end
+    king_checks(king_coordinates(board), board)
+    movement(@checkers[0], king_coordinates(board))
+    @checkers = []
+    @full_path.each { |square| escape << true if king_checks(square, board) == true }
+    p escape
     return 'checkmate' unless escape.any?
+
+    @checkers = []
   end
 
   def movement(first, last)
     @full_path = []
-    @full_path << first
     while first != last
-      @full_path << if first[0] < last[0] && first[1] < last[1]
-                      [first[0] + 1, first[1] + 1]
-                    elsif first[0] > last[0] && first[1] > last[1]
-                      [first[0] - 1, first[1] - 1]
-                    elsif first[0] > last[0] && first[1] < last[1]
-                      [first[0] - 1, first[1] + 1]
-                    elsif first[0] < last[0] && first[1] > last[1]
-                      [first[0] + 1, first[1] - 1]
-                    elsif first[0] < last[0] && first[1] == last[1]
-                      [first[0] + 1, first[1]]
-                    elsif first[0] > last[0] && first[1] == last[1]
-                      [first[0] - 1, first[1]]
-                    elsif first[0] == last[0] && first[1] < last[1]
-                      [first[0], first[1] + 1]
-                    else
-                      [first[0], first[1] - 1]
-                    end
+      @full_path << first = if first[0] < last[0] && first[1] < last[1]
+                              [first[0] + 1, first[1] + 1]
+                            elsif first[0] > last[0] && first[1] > last[1]
+                              [first[0] - 1, first[1] - 1]
+                            elsif first[0] > last[0] && first[1] < last[1]
+                              [first[0] - 1, first[1] + 1]
+                            elsif first[0] < last[0] && first[1] > last[1]
+                              [first[0] + 1, first[1] - 1]
+                            elsif first[0] < last[0] && first[1] == last[1]
+                              [first[0] + 1, first[1]]
+                            elsif first[0] > last[0] && first[1] == last[1]
+                              [first[0] - 1, first[1]]
+                            elsif first[0] == last[0] && first[1] < last[1]
+                              [first[0], first[1] + 1]
+                            else
+                              [first[0], first[1] - 1]
+                            end
     end
+    @full_path.pop
   end
 end

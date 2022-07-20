@@ -2,9 +2,12 @@
 
 # terminal messages to players
 class Messages
+  attr_accessor(:turn)
+
   def initialize
     @player1 = ''
     @player2 = ''
+    @turn = true
   end
 
   def welcome
