@@ -28,7 +28,7 @@ while game_loop
   board.display_board
   moves.piece_color(turn)
   moves.move_counter
-  if moves.king_checks(moves.king_coordinates(moves.new_board), moves.new_board)
+  if moves.piece_access(moves.king_coordinates(moves.new_board), moves.new_board)
     if moves.checkmate(turn, moves.new_board)
       messages.checkmate(turn)
       # break
@@ -36,7 +36,7 @@ while game_loop
       messages.check(turn)
     end
   end
-  # messages.check(turn) if moves.king_checks(moves.new_board)
+  # messages.check(turn) if moves.piece_access(moves.new_board)
   messages.your_move(turn)
   player_move = messages.ask_move
   # Options (save, load, new game, quit)
@@ -71,7 +71,7 @@ while game_loop
                                                           notation.input_start, moves.new_board)
       # verifies a player in check makes a move out and also not in
       moves.test_moves(notation.input_start, notation.input_end)
-      if moves.king_checks(moves.king_coordinates(moves.test_board), moves.test_board)
+      if moves.piece_access(moves.king_coordinates(moves.test_board), moves.test_board)
         system 'clear'
         next
       end

@@ -69,7 +69,7 @@ class Moves
     when @piece.white[3], @piece.black[3]
       bishop(start_cord, end_cord, board)
     when @piece.white[4], @piece.black[4]
-      knight(start_cord, end_cord)
+      knight(start_cord, end_cord, board)
     when @piece.white[5], @piece.black[5]
       pawn(start_cord, end_cord, board)
     end
@@ -139,8 +139,9 @@ class Moves
     end
   end
 
-  def knight(start_cord, end_cord)
-    KNIGHT_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
+  # using board in a useless way as a placeholder
+  def knight(start_cord, end_cord, board)
+    KNIGHT_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]) if board
   end
 
   def pawn(start_cord, end_cord, board)
@@ -241,58 +242,77 @@ class Moves
   end
 
   # checks
-  def king_checks(end_cord, board)
-    knight_check(end_cord, board)
-    bishop_check(end_cord, board)
-    rook_check(end_cord, board)
-    queen_check(end_cord, board)
-    pawn_check(end_cord, board)
+  # def piece_access(end_cord, board)
+  #   i = 0
+  #   the_pieces = [method(:knight), method(:bishop), method(:rook),
+  #                 method(:queen), method(:pawn)]
+  #   while i < the_pieces.length
+  #     find_all_piece_by_type(i, board)
+  #     @all_pieces.each do |s|
+  #       the_pieces.each do |p|
+  #         @checkers << s if p.call(s, end_cord, board)
+  #       end
+  #     end
+  #     i += 1
+  #   end
+  #   p @checkers
+  #   return true unless @checkers.empty?
+
+  #   false
+  # end
+
+  def piece_access(end_cord, board)
+    knight_access(end_cord, board)
+    bishop_access(end_cord, board)
+    rook_access(end_cord, board)
+    queen_access(end_cord, board)
+    pawn_access(end_cord, board)
     return true unless @checkers.empty?
 
     false
   end
 
   def king_coordinates(board)
-    @notation.cord_from_number(board.index(@king_color[0]))
+    @notation.cord_from_number(board.index(@own_pieces[0]))
   end
 
   def piece_color(turn)
-    @attack_color = turn ? @piece.black : @piece.white
-    @king_color = turn ? @piece.white : @piece.black
+    @opp_pieces = turn ? @piece.black : @piece.white
+    @own_pieces = turn ? @piece.white : @piece.black
   end
 
   def find_all_piece_by_type(num, board)
     @all_pieces = []
-    board.each_with_index { |p, i| @all_pieces << @notation.cord_from_number(i) if p == @attack_color[num] }
+    board.each_with_index { |p, i| @all_pieces << @notation.cord_from_number(i) if p == @opp_pieces[num] }
   end
 
-  def queen_check(end_cord, board)
+  def queen_access(end_cord, board)
     find_all_piece_by_type(1, board)
     @all_pieces.each { |q| @checkers << q if queen(q, end_cord, board) }
   end
 
-  def rook_check(end_cord, board)
+  def rook_access(end_cord, board)
     find_all_piece_by_type(2, board)
     @all_pieces.each { |r| @checkers << r if rook(r, end_cord, board) }
   end
 
-  def bishop_check(end_cord, board)
+  def bishop_access(end_cord, board)
     find_all_piece_by_type(3, board)
     @all_pieces.each { |b| @checkers << b if bishop(b, end_cord, board) }
   end
 
-  def knight_check(end_cord, board)
+  def knight_access(end_cord, board)
     find_all_piece_by_type(4, board)
-    @all_pieces.each { |n| @checkers << n if knight(n, end_cord) }
+    @all_pieces.each { |n| @checkers << n if knight(n, end_cord, board) }
   end
 
-  def pawn_check(end_cord, board)
+  def pawn_access(end_cord, board)
     find_all_piece_by_type(5, board)
     @all_pieces.each { |p| @checkers << p if pawn(p, end_cord, board) }
   end
 
   def no_king_check(board, end_cord)
-    current_king = @notation.cord_from_number(board.index(@attack_color[0]))
+    current_king = @notation.cord_from_number(board.index(@opp_pieces[0]))
     cords = []
     KING_CORDS.each { |k| cords << [current_king[0] + k[0], current_king[1] + k[1]] }
     cords.each { |k| return true if k == end_cord }
@@ -319,8 +339,8 @@ class Moves
   end
 
   def cm_king_moves(turn)
-    current_king = @new_board.index(@king_color[0])
-    current_king_cords = @notation.cord_from_number(@new_board.index(@king_color[0]))
+    current_king = @new_board.index(@own_pieces[0])
+    current_king_cords = @notation.cord_from_number(@new_board.index(@own_pieces[0]))
     possible_king_moves = []
     escape = []
     @checkers = []
@@ -330,21 +350,18 @@ class Moves
     possible_king_moves.compact!
     possible_king_moves.each do |move|
       test_moves(current_king, move) if basic_move_rules(current_king, move, turn)
-      escape << true if king_checks(king_coordinates(@test_board), @test_board) == false
+      escape << true if piece_access(king_coordinates(@test_board), @test_board) == false
     end
-    p @checkers
-    p escape
     @checkers = []
     return 'checkmate' unless escape.any?
   end
 
   def cm_block(board)
     escape = []
-    king_checks(king_coordinates(board), board)
+    piece_access(king_coordinates(board), board)
     movement(@checkers[0], king_coordinates(board))
     @checkers = []
-    @full_path.each { |square| escape << true if king_checks(square, board) == true }
-    p escape
+    @full_path.each { |square| escape << square if piece_access(square, board) == true }
     return 'checkmate' unless escape.any?
 
     @checkers = []
