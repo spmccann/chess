@@ -316,7 +316,7 @@ class Moves
 
   # checkmate
   def checkmate(turn, board)
-    cm_king_moves(turn) == 'checkmate' && cm_block(board) == 'checkmate'
+    cm_king_moves(turn) == 'checkmate' && cm_block(board) == 'checkmate' && cm_capture(board)
   end
 
   def cm_king_moves(turn)
@@ -330,8 +330,10 @@ class Moves
     end
     possible_king_moves.compact!
     possible_king_moves.each do |move|
-      test_moves(current_king, move) if basic_move_rules(current_king, move, turn)
-      escape << true if piece_access(king_coordinates(@test_board), @test_board) == false
+      if basic_move_rules(current_king, move, turn)
+        test_moves(current_king, move)
+        escape << true if p piece_access(king_coordinates(@test_board), @test_board) == false
+      end
     end
     @checkers = []
     return 'checkmate' unless escape.any?
@@ -346,6 +348,10 @@ class Moves
     return 'checkmate' unless escape.any?
 
     @checkers = []
+  end
+
+  def cm_capture(board)
+    piece_access(@attack_piece, board, @own_pieces)
   end
 
   def movement(first, last)
@@ -369,6 +375,6 @@ class Moves
                               [first[0], first[1] - 1]
                             end
     end
-    @full_path.pop
+    p @attack_piece = @full_path.pop
   end
 end
