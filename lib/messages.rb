@@ -7,7 +7,6 @@ class Messages
   def initialize
     @player1 = ''
     @player2 = ''
-    @turn = true
   end
 
   def welcome

@@ -38,9 +38,9 @@
  
  
 
-checks - castling and other special moves
+checks - other special moves
 checkmate - DONE?
-castling short and long - done except for checks
+castling short and long - DONE
 
 promotion - DONE (queen only)
 
@@ -65,4 +65,8 @@ issue with moving king for knight checking function - DONE
 
 
 find piece(s) initiating check, array of piece and path squares, test if other pieces can move to block/capture
+
+
+check message if illegal move into check
+can't castle out of check
 

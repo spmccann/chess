@@ -179,7 +179,7 @@ class Moves
   # castling
   def castle(player_move, turn)
     select_castle(player_move, turn)
-    if valid_castle && castling_rights(player_move, turn) && attack_on_castle_squares
+    if valid_castle && castling_rights(player_move, turn) && attack_on_castle_squares && no_castle_in_check
       castle_move
     else
       false
@@ -198,6 +198,7 @@ class Moves
                end
   end
 
+  # squares between king and rook have to be empty
   def valid_castle
     if @moveset.length == 4
       @new_board[@moveset[0]] == ' ' && @new_board[@moveset[2]] == ' '
@@ -206,6 +207,7 @@ class Moves
     end
   end
 
+  # counts moves by the king or rook to see if castling rights are lost
   def move_counter
     if @new_board[CASTLE_SHORT_WHITE[1]] != @piece.white[0] || @new_board[CASTLE_SHORT_WHITE[3]] != @piece.white[2]
       @castle_rights[0] += 1
@@ -233,22 +235,20 @@ class Moves
     end
   end
 
+  # verifies that no opponent piece has vision on squares between a castle manuveur
   def attack_on_castle_squares
     result = []
-    p @moveset[0]
-    result << false if piece_access( @notation.cord_from_number(@moveset[0]), @new_board)
-    p @checkers
+    result << false if piece_access(@notation.cord_from_number(@moveset[0]), @new_board)
     @checkers = []
-    p @moveset[2]
-    result << false if piece_access( @notation.cord_from_number(@moveset[2]), @new_board)
-    p @checkers
+    result << false if piece_access(@notation.cord_from_number(@moveset[2]), @new_board)
     @checkers = []
-    p @moveset[4]
-    result << false if @moveset.length > 4 && piece_access( @notation.cord_from_number(@moveset[4]), @new_board)
-    p @checkers
+    result << false if @moveset.length > 4 && piece_access(@notation.cord_from_number(@moveset[4]), @new_board)
     @checkers = []
-    p result
     true if result.empty?
+  end
+
+  def no_castle_in_check
+    piece_access(king_coordinates(@new_board), @new_board) == false
   end
 
   def castle_move
@@ -256,6 +256,20 @@ class Moves
     @new_board[@moveset[1]] = ' '
     @new_board[@moveset[2]] = @new_board[@moveset[3]]
     @new_board[@moveset[3]] = ' '
+  end
+
+  # promotions
+  def promotion?(turn)
+    pawn_list = []
+    if turn
+      pawn = @piece.white
+      promo = PROMOTION_SQUARE_WHITE
+    else
+      pawn = @piece.black
+      promo = PROMOTION_SQUARE_BLACK
+    end
+    @new_board.each_with_index { |p, i| pawn_list << i if p == pawn[5] }
+    pawn_list.each { |i| @new_board[i] = pawn[1] if promo.include?(i) }
   end
 
   # checks
@@ -279,33 +293,33 @@ class Moves
     @own_pieces = turn ? @piece.white : @piece.black
   end
 
-  def find_all_piece_by_type(num, board, side)
+  def find_all_pieces_by_type(num, board, side)
     @all_pieces = []
     board.each_with_index { |p, i| @all_pieces << @notation.cord_from_number(i) if p == side[num] }
   end
 
   def queen_access(end_cord, board, side)
-    find_all_piece_by_type(1, board, side)
+    find_all_pieces_by_type(1, board, side)
     @all_pieces.each { |q| @checkers << q if queen(q, end_cord, board) }
   end
 
   def rook_access(end_cord, board, side)
-    find_all_piece_by_type(2, board, side)
+    find_all_pieces_by_type(2, board, side)
     @all_pieces.each { |r| @checkers << r if rook(r, end_cord, board) }
   end
 
   def bishop_access(end_cord, board, side)
-    find_all_piece_by_type(3, board, side)
+    find_all_pieces_by_type(3, board, side)
     @all_pieces.each { |b| @checkers << b if bishop(b, end_cord, board) }
   end
 
   def knight_access(end_cord, board, side)
-    find_all_piece_by_type(4, board, side)
+    find_all_pieces_by_type(4, board, side)
     @all_pieces.each { |n| @checkers << n if knight(n, end_cord) }
   end
 
   def pawn_access(end_cord, board, side)
-    find_all_piece_by_type(5, board, side)
+    find_all_pieces_by_type(5, board, side)
     @all_pieces.each { |p| @checkers << p if pawn(p, end_cord, board) }
   end
 
@@ -317,26 +331,12 @@ class Moves
     false
   end
 
-  # promotions
-  def promotion?(turn)
-    pawn_list = []
-    if turn
-      pawn = @piece.white
-      promo = PROMOTION_SQUARE_WHITE
-    else
-      pawn = @piece.black
-      promo = PROMOTION_SQUARE_BLACK
-    end
-    @new_board.each_with_index { |p, i| pawn_list << i if p == pawn[5] }
-    pawn_list.each { |i| @new_board[i] = pawn[1] if promo.include?(i) }
-  end
-
   # checkmate
   def checkmate(turn, board)
-    cm_king_moves(turn) == 'checkmate' && cm_block(board) == 'checkmate' && cm_capture(board)
+    checkmate_king_moves(turn) == 'checkmate' && checkmate_block(board) == 'checkmate' && checkmate_capture(board)
   end
 
-  def cm_king_moves(turn)
+  def checkmate_king_moves(turn)
     current_king = @new_board.index(@own_pieces[0])
     current_king_cords = @notation.cord_from_number(@new_board.index(@own_pieces[0]))
     possible_king_moves = []
@@ -357,7 +357,7 @@ class Moves
     return 'checkmate' unless escape.any?
   end
 
-  def cm_block(board)
+  def checkmate_block(board)
     escape = []
     piece_access(king_coordinates(board), board)
     movement(@checkers[0], king_coordinates(board))
@@ -367,13 +367,14 @@ class Moves
     return 'checkmate' unless escape.any?
   end
 
-  def cm_capture(board)
+  def checkmate_capture(board)
     piece_access(king_coordinates(@new_board), board)
     capture_piece = @checkers[0]
     @checkers = []
     piece_access(capture_piece, board, @own_pieces) == false
   end
 
+  # collects the path between the attack piece and king to be used for checkmate_block
   def movement(first, last)
     @full_path = []
     while first != last
