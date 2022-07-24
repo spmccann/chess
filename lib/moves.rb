@@ -139,7 +139,6 @@ class Moves
     end
   end
 
-  # using board in a useless way as a placeholder
   def knight(start_cord, end_cord)
     KNIGHT_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
   end
@@ -330,10 +329,11 @@ class Moves
     end
     possible_king_moves.compact!
     possible_king_moves.each do |move|
-      if basic_move_rules(current_king, move, turn)
-        test_moves(current_king, move)
-        escape << true if p piece_access(king_coordinates(@test_board), @test_board) == false
-      end
+      next unless basic_move_rules(current_king, move, turn)
+
+      test_moves(current_king, move)
+      escape << true if piece_access(king_coordinates(@test_board), @test_board) == false
+      @checkers = []
     end
     @checkers = []
     return 'checkmate' unless escape.any?
@@ -345,13 +345,15 @@ class Moves
     movement(@checkers[0], king_coordinates(board))
     @checkers = []
     @full_path.each { |square| escape << square if piece_access(square, board, @own_pieces) == true }
-    return 'checkmate' unless escape.any?
-
     @checkers = []
+    return 'checkmate' unless escape.any?
   end
 
   def cm_capture(board)
-    piece_access(@attack_piece, board, @own_pieces)
+    piece_access(king_coordinates(@new_board), board)
+    capture_piece = @checkers[0]
+    @checkers = []
+    piece_access(capture_piece, board, @own_pieces) == false
   end
 
   def movement(first, last)
@@ -375,6 +377,6 @@ class Moves
                               [first[0], first[1] - 1]
                             end
     end
-    p @attack_piece = @full_path.pop
+    @full_path.pop
   end
 end

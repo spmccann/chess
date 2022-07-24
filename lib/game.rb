@@ -71,8 +71,9 @@ while game_loop
                                                           notation.input_start, moves.new_board)
       # verifies a player in check makes a move out and also not in
       moves.test_moves(notation.input_start, notation.input_end)
+      moves.checkers = []
       if moves.piece_access(moves.king_coordinates(moves.test_board), moves.test_board)
-        system 'clear'
+        # system 'clear'
         next
       end
       # make the move on the board
