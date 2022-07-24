@@ -39,10 +39,11 @@
  
 
 checks - castling and other special moves
-checkmate
+checkmate - DONE?
 castling short and long - done except for checks
 
 promotion - DONE (queen only)
+
 stalemate
 en passant
 

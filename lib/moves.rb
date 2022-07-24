@@ -179,7 +179,7 @@ class Moves
   # castling
   def castle(player_move, turn)
     select_castle(player_move, turn)
-    if valid_castle && castling_rights(player_move, turn)
+    if valid_castle && castling_rights(player_move, turn) && attack_on_castle_squares
       castle_move
     else
       false
@@ -231,6 +231,24 @@ class Moves
     else
       @castle_rights[3].zero?
     end
+  end
+
+  def attack_on_castle_squares
+    result = []
+    p @moveset[0]
+    result << false if piece_access( @notation.cord_from_number(@moveset[0]), @new_board)
+    p @checkers
+    @checkers = []
+    p @moveset[2]
+    result << false if piece_access( @notation.cord_from_number(@moveset[2]), @new_board)
+    p @checkers
+    @checkers = []
+    p @moveset[4]
+    result << false if @moveset.length > 4 && piece_access( @notation.cord_from_number(@moveset[4]), @new_board)
+    p @checkers
+    @checkers = []
+    p result
+    true if result.empty?
   end
 
   def castle_move
