@@ -11,6 +11,10 @@ class Moves
   include Coordinates
 
   def initialize
+    setup
+  end
+
+  def setup
     @piece = Pieces.new
     @notation = Notation.new
     @castle_rights = [0, 0, 0, 0]
@@ -27,12 +31,17 @@ class Moves
        ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
   end
 
+  def reset_game
+    setup
+  end
+
   # update the board
   def make_moves(start_square, end_square)
     @new_board[end_square] = @new_board[start_square]
     @new_board[start_square] = ' '
   end
 
+  # playing a move on a test board to catch a move that walks into check
   def test_moves(start_square, end_square)
     @test_board = @new_board.dup
     @test_board[end_square] = @test_board[start_square]
@@ -75,7 +84,7 @@ class Moves
     end
   end
 
-  # checks if any pieces are way of move
+  # checks if any pieces are way of the move
   def clear_path?(board)
     @path.each { |c| return false if board[@notation.number_from_cord(c)] != ' ' }
   end
@@ -272,7 +281,7 @@ class Moves
     pawn_list.each { |i| @new_board[i] = pawn[1] if promo.include?(i) }
   end
 
-  # checks
+  # checks / access to specified square
   def piece_access(end_cord, board, side = @opp_pieces)
     knight_access(end_cord, board, side)
     bishop_access(end_cord, board, side)

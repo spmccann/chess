@@ -53,7 +53,7 @@ resigns
 draw by agreement
 three-fold repetition
 
-
+new game?
 
 
 pawns -- moving 2 spaces with pawn 1 square ahead -DONE
@@ -68,5 +68,5 @@ find piece(s) initiating check, array of piece and path squares, test if other p
 
 
 check message if illegal move into check
-can't castle out of check
+can't castle out of check - DONE
 

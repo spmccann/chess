@@ -84,4 +84,10 @@ class Messages
   def checkmate(turn)
     turn ? puts("#{@player2}, that's checkmate. You've won.") : puts("#{@player1}, that's checkmate. You've won.")
   end
+
+  def new_game?
+    puts "Type 'yes' to start a new game"
+    answer = gets.chomp.downcase
+    answer == 'yes'
+  end
 end

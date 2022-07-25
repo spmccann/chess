@@ -31,12 +31,14 @@ while game_loop
   if moves.piece_access(moves.king_coordinates(moves.new_board), moves.new_board)
     if moves.checkmate(turn, moves.new_board)
       messages.checkmate(turn)
-      # break
+      messages.new_game? ? moves.reset_game : break
+      board = Board.new(moves.new_board)
+      board.display_board
+      turn = true
     else
       messages.check(turn)
     end
   end
-  # messages.check(turn) if moves.piece_access(moves.new_board)
   messages.your_move(turn)
   player_move = messages.ask_move
   # Options (save, load, new game, quit)
