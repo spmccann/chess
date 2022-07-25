@@ -162,27 +162,48 @@ class Moves
       start_num = 1
       mid_cord = [end_cord[0], end_cord[1] - 1]
     end
-    pawn_moves(cords, start_num, start_cord, end_cord, mid_cord, board)
+    pawn_loader(cords, start_num, start_cord, end_cord, mid_cord, board)
   end
 
-  def pawn_moves(cords, start_num, start_cord, end_cord, mid_cord, board)
+  def pawn_loader(cords, start_num, start_cord, end_cord, mid_cord, board)
+    pawn_forward_one(cords, start_cord, end_cord,
+                     board) || pawn_forward_two(cords, start_num, start_cord, end_cord, mid_cord,
+                                                board) || pawn_capture(cords, start_cord, end_cord,
+                                                                       board) || en_passant(cords, start_cord,
+                                                                                            end_cord, mid_cord, board)
+  end
+
+  def pawn_forward_one(cords, start_cord, end_cord, board)
     pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
-    diag_capture = cords[2..3].include?(pawn_test)
-    return true if start_cord[1] == start_num && cords[1] == pawn_test && !pawn_capture(end_cord,
-                                                                                        board) && pawn_mid(mid_cord,
-                                                                                                           board)
-    return true if cords[0] == pawn_test && !pawn_capture(end_cord,
-                                                          board) || (diag_capture && pawn_capture(end_cord, board))
+    true if cords[0] == pawn_test && no_pawn_ahead(end_cord, board)
   end
 
-  # true if diag capture and using the negation if moving ahead
-  def pawn_capture(end_cord, board)
-    board[@notation.number_from_cord(end_cord)] != ' '
+  def pawn_forward_two(cords, start_num, start_cord, end_cord, mid_cord, board)
+    pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
+    true if start_cord[1] == start_num && cords[1] == pawn_test && no_pawn_ahead(end_cord,
+                                                                                 board) && pawn_mid(mid_cord, board)
+  end
+
+  def pawn_capture(cords, start_cord, end_cord, board)
+    pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
+    board[@notation.number_from_cord(end_cord)] != ' ' && cords[2..3].include?(pawn_test)
   end
 
   # checking that there's no piece one square ahead if moving 2 squares
   def pawn_mid(mid_cord, board)
     board[@notation.number_from_cord(mid_cord)] == ' '
+  end
+
+  def no_pawn_ahead(end_cord, board)
+    board[@notation.number_from_cord(end_cord)] == ' '
+  end
+
+  def en_passant(cords, start_cord, end_cord, mid_cord, board)
+    pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
+    return false unless cords[2..3].include?(pawn_test) && board[@notation.number_from_cord(mid_cord)] == @opp_pieces[5]
+
+    board[@notation.number_from_cord(mid_cord)] = ' '
+    true
   end
 
   # castling
