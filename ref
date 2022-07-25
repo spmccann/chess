@@ -38,35 +38,22 @@
  
  
 
-checks - other special moves
-checkmate - DONE?
-castling short and long - DONE
-
-promotion - DONE (queen only)
-
 stalemate
 en passant
-
 dead position
-
-resigns
-draw by agreement
 three-fold repetition
+computer play
 
-new game?
-
-
+resigns - DONE
+draw by agreement - DONE
+check message if illegal move into check - DONE
+checkmate - DONE?
+castling short and long - DONE
+promotion - DONE (queen only)
+new game? - Done
 pawns -- moving 2 spaces with pawn 1 square ahead -DONE
-
 message for still in check - DONE
-
-
 issue with moving king for knight checking function - DONE
-
-
-find piece(s) initiating check, array of piece and path squares, test if other pieces can move to block/capture
-
-
-check message if illegal move into check
+find piece(s) initiating check, array of piece and path squares, test if other pieces can move to block/capture - Done
 can't castle out of check - DONE
 

@@ -52,6 +52,8 @@ class Messages
     puts '------------------------'
     puts 'S - saves game'
     puts 'L - loads game'
+    puts 'R - resign game'
+    puts 'D - draw offer'
     puts 'Q - quits the program'
     puts 'H - help menu'
     puts '------------------------'
@@ -62,7 +64,7 @@ class Messages
   end
 
   def invalid_notation
-    puts 'Enter your move in the format [A-H][1-8]-[A-H][1-8]. For example, E2-E4.'
+    puts 'Enter your move in the format [A-H][1-8]-[A-H][1-8]. For example, E2-E4. 0-0 for short castle. 0-0-0 for long castle'
   end
 
   def invalid_chess_move
@@ -86,8 +88,22 @@ class Messages
   end
 
   def new_game?
-    puts "Type 'yes' to start a new game"
+    puts "Type 'yes' if you wish to start a new game"
     answer = gets.chomp.downcase
     answer == 'yes'
+  end
+
+  def draw_offer(turn)
+    turn ? puts("#{@player1} would like a draw. Does #{@player2} accept?") : puts("#{@player2} would like a draw. Does #{@player1} accept?")
+    answer = gets.chomp.downcase
+    answer == 'yes'
+  end
+
+  def drawn
+    puts 'Game ends in a draw by agreement.'
+  end
+
+  def resigns(turn)
+    turn ? puts("#{@player1} resigns. #{@player2} wins.") : puts("#{@player2} resigns. #{@player1} wins.")
   end
 end

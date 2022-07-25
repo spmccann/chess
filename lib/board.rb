@@ -21,10 +21,10 @@ class Board
       if i > 71 || (i % 9).zero?
         @chessboard << " #{square} ".white.on_black
       elsif alt
-        @chessboard << " #{square} ".on_light_white
+        @chessboard << " #{square} ".on_light_yellow
         alt = false
       else
-        @chessboard << " #{square} ".on_light_blue
+        @chessboard << " #{square} ".on_light_cyan
         alt = true
       end
     end

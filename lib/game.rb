@@ -32,8 +32,8 @@ while game_loop
     if moves.checkmate(turn, moves.new_board)
       messages.checkmate(turn)
       messages.new_game? ? moves.reset_game : break
+      system 'clear'
       board = Board.new(moves.new_board)
-      board.display_board
       turn = true
     else
       messages.check(turn)
@@ -42,7 +42,7 @@ while game_loop
   messages.your_move(turn)
   player_move = messages.ask_move
   # Options (save, load, new game, quit)
-  if %w[S L Q H].include?(player_move)
+  if %w[S L Q H D R].include?(player_move)
     serialize.option_selector(player_move)
     messages.confirmation(player_move)
     case player_move
@@ -55,6 +55,20 @@ while game_loop
       moves.castle_rights = serialize.castle_rights
     when 'Q'
       game_loop = false
+    when 'D'
+      if messages.draw_offer(turn)
+        system 'clear'
+        messages.drawn
+        messages.new_game? ? moves.reset_game : break
+        board = Board.new(moves.new_board)
+        turn = true
+      end
+    when 'R'
+      system 'clear'
+      messages.resigns(turn)
+      messages.new_game? ? moves.reset_game : break
+      board = Board.new(moves.new_board)
+      turn = true
     end
   # castling
   elsif %w[0-0 0-0-0].include?(player_move)
