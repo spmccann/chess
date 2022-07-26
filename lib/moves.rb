@@ -183,9 +183,9 @@ class Moves
   def pawn_forward_two(cords, start_num, start_cord, end_cord, mid_cord, board)
     pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
     @passant_possible << end_cord if start_cord[1] == start_num && cords[1] == pawn_test && no_pawn_ahead(end_cord,
-                                                                                                     board) && pawn_mid(
-                                                                                                       mid_cord, board
-                                                                                                     )
+                                                                                                          board) && pawn_mid(
+                                                                                                            mid_cord, board
+                                                                                                          )
   end
 
   def pawn_capture(cords, start_cord, end_cord, board)
@@ -206,13 +206,15 @@ class Moves
     pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
     opp_take_pawn = board[@notation.number_from_cord(mid_cord)] == @opp_pieces[5]
     mid_cord[1]
-    start__spot = mid_cord[1] == if @own_pieces == @piece.white
-                                   3
-                                 else
-                                   4
-                                 end
+    start_spot = mid_cord[1] == if @own_pieces == @piece.white
+                                  3
+                                else
+                                  4
+                                end
 
-    return false unless @passant_possible[0] == mid_cord && cords[2..3].include?(pawn_test) && opp_take_pawn && start__spot
+    unless @passant_possible[0] == mid_cord && cords[2..3].include?(pawn_test) && opp_take_pawn && start_spot
+      return false
+    end
 
     board[@notation.number_from_cord(mid_cord)] = ' '
     true
@@ -451,6 +453,8 @@ class Moves
 
   def dead_position
     pieces_left = [@piece.white[3], @piece.white[4], @piece.black[3], @piece.black[4]]
-    @new_board.count(' ') == 62 || (@new_board.count(' ') == 61 && @new_board.each { |s| true if pieces_left.include?(s) })
+    @new_board.count(' ') == 62 || (@new_board.count(' ') == 61 && @new_board.each do |s|
+                                      true if pieces_left.include?(s)
+                                    end)
   end
 end

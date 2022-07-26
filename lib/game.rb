@@ -22,27 +22,23 @@ serialize = Serialize.new(moves.new_board, messages.names, turn, moves.castle_ri
 
 while game_loop
   # inform the player it's their turn and ask for a move
-  moves.dead_position
   serialize.turn = turn
   messages.next_turn
   board = Board.new(moves.new_board)
   board.display_board
+  moves.piece_color(turn)
+  moves.move_counter
   if moves.dead_position
     system 'clear'
     messages.drawn
     messages.new_game? ? moves.reset_game : break
-    board = Board.new(moves.new_board)
     turn = true
-    board.display_board
-  end
-  moves.piece_color(turn)
-  moves.move_counter
-  if moves.piece_access(moves.king_coordinates(moves.new_board), moves.new_board)
+    next
+  elsif moves.piece_access(moves.king_coordinates(moves.new_board), moves.new_board)
     if moves.checkmate(turn, moves.new_board)
       messages.checkmate(turn)
       messages.new_game? ? moves.reset_game : break
       system 'clear'
-      board = Board.new(moves.new_board)
       turn = true
     else
       messages.check(turn)

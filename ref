@@ -39,10 +39,9 @@
  
 
 stalemate
-dead position
-three-fold repetition
 computer play
 
+dead position - DONE except for same color bishop w/ kings
 en passant - DONE except for saves
 resigns - DONE
 draw by agreement - DONE
@@ -54,6 +53,6 @@ new game? - Done
 pawns -- moving 2 spaces with pawn 1 square ahead -DONE
 message for still in check - DONE
 issue with moving king for knight checking function - DONE
-find piece(s) initiating check, array of piece and path squares, test if other pieces can move to block/capture - Done
 can't castle out of check - DONE
+three-fold repetition - skipping
 
