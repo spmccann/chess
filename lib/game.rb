@@ -40,6 +40,7 @@ while game_loop
       messages.new_game? ? moves.reset_game : break
       system 'clear'
       turn = true
+      next
     else
       messages.check(turn)
     end
