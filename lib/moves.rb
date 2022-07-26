@@ -200,7 +200,14 @@ class Moves
 
   def en_passant(cords, start_cord, end_cord, mid_cord, board)
     pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
-    return false unless cords[2..3].include?(pawn_test) && board[@notation.number_from_cord(mid_cord)] == @opp_pieces[5]
+    opp_take_pawn = board[@notation.number_from_cord(mid_cord)]
+    p mid_cord[1]
+    two_forward = mid_cord[1] == if @opp_pieces == @piece.white[5]
+                                   4
+                                 else
+                                   3
+                                 end
+    return false unless cords[2..3].include?(pawn_test) && opp_take_pawn == @opp_pieces[5] && two_forward
 
     board[@notation.number_from_cord(mid_cord)] = ' '
     true
