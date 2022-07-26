@@ -30,7 +30,7 @@ class Moves
        '3', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
        '2', @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5], @piece.white[5],
        '1', @piece.white[2], @piece.white[4], @piece.white[3], @piece.white[1], @piece.white[0], @piece.white[3], @piece.white[4], @piece.white[2],
-       ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+       '▦', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
   end
 
   def reset_game
@@ -447,5 +447,10 @@ class Moves
                             end
     end
     @full_path.pop
+  end
+
+  def dead_position
+    pieces_left = [@piece.white[3], @piece.white[4], @piece.black[3], @piece.black[4]]
+    @new_board.count(' ') == 62 || (@new_board.count(' ') == 61 && @new_board.each { |s| true if pieces_left.include?(s) })
   end
 end

@@ -100,7 +100,7 @@ class Messages
   end
 
   def drawn
-    puts 'Game ends in a draw by agreement.'
+    puts 'Game ends in a draw.'
   end
 
   def resigns(turn)
