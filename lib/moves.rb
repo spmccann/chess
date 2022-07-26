@@ -19,6 +19,8 @@ class Moves
     @notation = Notation.new
     @castle_rights = [0, 0, 0, 0]
     @checkers = []
+    @passant_possible = []
+    @passant_turns = []
     @new_board =
       ['8', @piece.black[2], @piece.black[4], @piece.black[3], @piece.black[1], @piece.black[0], @piece.black[3], @piece.black[4], @piece.black[2],
        '7', @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5],
@@ -180,8 +182,10 @@ class Moves
 
   def pawn_forward_two(cords, start_num, start_cord, end_cord, mid_cord, board)
     pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
-    true if start_cord[1] == start_num && cords[1] == pawn_test && no_pawn_ahead(end_cord,
-                                                                                 board) && pawn_mid(mid_cord, board)
+    @passant_possible << end_cord if start_cord[1] == start_num && cords[1] == pawn_test && no_pawn_ahead(end_cord,
+                                                                                                     board) && pawn_mid(
+                                                                                                       mid_cord, board
+                                                                                                     )
   end
 
   def pawn_capture(cords, start_cord, end_cord, board)
@@ -200,17 +204,26 @@ class Moves
 
   def en_passant(cords, start_cord, end_cord, mid_cord, board)
     pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
-    opp_take_pawn = board[@notation.number_from_cord(mid_cord)]
-    p mid_cord[1]
-    two_forward = mid_cord[1] == if @opp_pieces == @piece.white[5]
-                                   4
-                                 else
+    opp_take_pawn = board[@notation.number_from_cord(mid_cord)] == @opp_pieces[5]
+    mid_cord[1]
+    start__spot = mid_cord[1] == if @own_pieces == @piece.white
                                    3
+                                 else
+                                   4
                                  end
-    return false unless cords[2..3].include?(pawn_test) && opp_take_pawn == @opp_pieces[5] && two_forward
+
+    return false unless @passant_possible[0] == mid_cord && cords[2..3].include?(pawn_test) && opp_take_pawn && start__spot
 
     board[@notation.number_from_cord(mid_cord)] = ' '
     true
+  end
+
+  def passant_control(turn)
+    @passant_turns << turn unless @passant_possible.empty?
+    return unless @passant_turns.length > 1
+
+    @passant_possible = []
+    @passant_turns = []
   end
 
   # castling

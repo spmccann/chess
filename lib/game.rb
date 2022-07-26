@@ -95,6 +95,7 @@ while game_loop
       # make the move on the board
       moves.make_moves(notation.input_start, notation.input_end)
       moves.promotion?(turn)
+      moves.passant_control(turn)
       turn = !turn
       system 'clear'
     else

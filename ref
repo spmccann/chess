@@ -39,11 +39,12 @@
  
 
 stalemate
-en passant - capture a horizontally adjacent enemy pawn that has just advanced two squares in one move, on the turn immediately after the two-square advance
+
 dead position
 three-fold repetition
 computer play
 
+en passant - DONE except for saves
 resigns - DONE
 draw by agreement - DONE
 check message if illegal move into check - DONE
