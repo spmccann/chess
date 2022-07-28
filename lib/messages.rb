@@ -106,4 +106,8 @@ class Messages
   def resigns(turn)
     turn ? puts("#{@player1} resigns. #{@player2} wins.") : puts("#{@player2} resigns. #{@player1} wins.")
   end
+
+  def stalemate
+    puts 'Game ends in a stalemate'
+  end
 end

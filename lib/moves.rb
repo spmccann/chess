@@ -53,7 +53,8 @@ class Moves
   # general rules for movement
   def basic_move_rules(start_square, end_square, turn)
     start_piece_exists(start_square) && end_piece_not_same_color(end_square,
-                                                                 turn) && turn_color_match(start_square, turn)
+                                                                 turn) && turn_color_match(start_square,
+                                                                                           turn) && end_square_index_not_board_label(end_square)
   end
 
   def start_piece_exists(start_square)
@@ -66,6 +67,10 @@ class Moves
 
   def turn_color_match(start_square, turn)
     turn ? @piece.white.include?(@new_board[start_square]) : @piece.black.include?(@new_board[start_square])
+  end
+
+  def end_square_index_not_board_label(end_square)
+    BOARD_LABELS.each { |l| return false if end_square == @new_board.index(l) }
   end
 
   # piece specific move rules
@@ -405,7 +410,6 @@ class Moves
       escape << true if piece_access(king_coordinates(@test_board), @test_board) == false
       @checkers = []
     end
-    @checkers = []
     return 'checkmate' unless escape.any?
   end
 
@@ -456,5 +460,28 @@ class Moves
     @new_board.count(' ') == 62 || (@new_board.count(' ') == 61 && @new_board.each do |s|
                                       true if pieces_left.include?(s)
                                     end)
+  end
+
+  def stalemate(turn)
+    true if all_knight_moves(turn)
+  end
+
+  # def all_knight_moves(turn)
+  #   current_knight = @new_board.index(@own_pieces[4])
+  #   current_knight_cords = @notation.cord_from_number(@new_board.index(@own_pieces[4]))
+  #   possible_knight_moves = []
+  #   escape = []
+  #   KNIGHT_CORDS.each do |k|
+  #     possible_knight_moves << @notation.number_from_cord([current_knight_cords[0] + k[0],
+  #                                                          current_knight_cords[1] + k[1]])
+  #   end
+  #   possible_knight_moves.compact!
+  #   possible_knight_moves.each { |move| escape << move if basic_move_rules(current_knight, move, turn) }
+  #   p possible_knight_moves
+  #   p escape
+  #   return true unless escape.any?
+  # end
+  def possible_knight
+    knight_access(end_cord, board, @own_pieces)
   end
 end

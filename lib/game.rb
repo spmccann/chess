@@ -44,6 +44,12 @@ while game_loop
     else
       messages.check(turn)
     end
+  elsif moves.stalemate(turn)
+    system 'clear'
+    messages.stalemate
+    messages.new_game? ? moves.reset_game : break
+    turn = true
+    next
   end
   messages.your_move(turn)
   player_move = messages.ask_move
