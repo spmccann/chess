@@ -29,9 +29,9 @@ while game_loop
   moves.piece_color(turn)
   moves.move_counter
   if moves.dead_position
-    system 'clear'
     messages.drawn
     messages.new_game? ? moves.reset_game : break
+    system 'clear'
     turn = true
     next
   elsif moves.piece_access(moves.king_coordinates(moves.new_board), moves.new_board)
@@ -44,10 +44,10 @@ while game_loop
     else
       messages.check(turn)
     end
-  elsif moves.stalemate(turn)
-    system 'clear'
+  elsif moves.stalemate(moves.new_board, turn)
     messages.stalemate
     messages.new_game? ? moves.reset_game : break
+    system 'clear'
     turn = true
     next
   end

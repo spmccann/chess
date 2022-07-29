@@ -462,8 +462,10 @@ class Moves
                                     end)
   end
 
-  def stalemate(turn)
-    true if all_knight_moves(turn)
+  def stalemate(board, turn)
+    return true if all_knight_moves(board, turn)
+
+    false
   end
 
   # def all_knight_moves(turn)
@@ -481,7 +483,23 @@ class Moves
   #   p escape
   #   return true unless escape.any?
   # end
-  def possible_knight
-    knight_access(end_cord, board, @own_pieces)
+
+  def all_knight_moves(board, turn)
+    find_all_pieces_by_type(4, board, @own_pieces)
+    escape = []
+    KNIGHT_CORDS.each do |k|
+      @all_pieces.each do |p|
+        possible_knight = [p[0] + k[0], p[1] + k[1]]
+        pos_knight_num = @notation.number_from_cord(possible_knight)
+        current_knight_num = @notation.number_from_cord(p)
+        next unless !(pos_knight_num.nil? || current_knight_num.nil?) && basic_move_rules(current_knight_num, pos_knight_num,
+                                                                                          turn)
+
+        escape << possible_knight if knight_access(possible_knight, board, @own_pieces)
+        @checkers = []
+      end
+    end
+    p escape
+    return true unless escape.any?
   end
 end
