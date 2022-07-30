@@ -44,6 +44,14 @@ while game_loop
     else
       messages.check(turn)
     end
+  elsif moves.stalemate(moves.new_board, turn)
+    system 'clear'
+    board = Board.new(moves.new_board)
+    board.display_board
+    messages.stalemate
+    turn = true
+    messages.new_game? ? moves.reset_game : break
+    system 'clear'
   end
   messages.your_move(turn)
   player_move = messages.ask_move
@@ -102,17 +110,8 @@ while game_loop
       moves.make_moves(notation.input_start, notation.input_end)
       moves.promotion?(turn)
       moves.passant_control(turn)
-      if moves.stalemate(moves.new_board, turn)
-        system 'clear'
-        board = Board.new(moves.new_board)
-        board.display_board
-        messages.stalemate
-        turn = false
-        messages.new_game? ? moves.reset_game : break
-        system 'clear'
-      end
       turn = !turn
-      system 'clear'
+      # system 'clear'
     else
       system 'clear'
       messages.invalid_chess_move

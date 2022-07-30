@@ -21,6 +21,7 @@ class Moves
     @checkers = []
     @passant_possible = []
     @passant_turns = []
+    @escape = []
     @new_board =
       ['8', @piece.black[2], @piece.black[4], @piece.black[3], @piece.black[1], @piece.black[0], @piece.black[3], @piece.black[4], @piece.black[2],
        '7', @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5], @piece.black[5],
@@ -463,90 +464,22 @@ class Moves
   end
 
   def stalemate(board, turn)
-    return true if pawn_stale(board, turn)
-
-    # return true if knight_stale(board,
-    #                             turn) && bishop_stale(board,
-    #                                                   turn) && rook_stale(board,
-    #                                                                       turn) && queen_stale(board,
-    #                                                                                            turn) && king_stale(
-    #                                                                                              board, turn
-    #                                                                                            )
+    @escape = []
+    king_stale(board, turn)
+    queen_stale(board, turn)
+    rook_stale(board, turn)
+    bishop_stale(board, turn)
+    knight_stale(board, turn)
+    pawn_stale(board, turn)
+    no_escape_into_check
+    p @escape
+    return true if @escape.empty?
 
     false
   end
 
-  def knight_stale(board, turn)
-    find_all_pieces_by_type(4, board, @own_pieces)
-    escape = []
-    KNIGHT_CORDS.each do |k|
-      @all_pieces.each do |p|
-        possible_knight = [p[0] + k[0], p[1] + k[1]]
-        pos_knight_num = @notation.number_from_cord(possible_knight)
-        current_knight_num = @notation.number_from_cord(p)
-        next unless !(pos_knight_num.nil? || current_knight_num.nil?) && basic_move_rules(current_knight_num, pos_knight_num,
-                                                                                          turn)
-
-        escape << possible_knight if knight(p, possible_knight)
-      end
-    end
-    return true unless escape.any?
-  end
-
-  def bishop_stale(board, turn)
-    find_all_pieces_by_type(3, board, @own_pieces)
-    escape = []
-    BISHOP_CORDS.each do |b|
-      @all_pieces.each do |p|
-        possible_bishop = [p[0] + b[0], p[1] + b[1]]
-        pos_bishop_num = @notation.number_from_cord(possible_bishop)
-        current_bishop_num = @notation.number_from_cord(p)
-        next unless !(pos_bishop_num.nil? || current_bishop_num.nil?) && basic_move_rules(current_bishop_num, pos_bishop_num,
-                                                                                          turn)
-
-        escape << possible_bishop if bishop(p, possible_bishop, board)
-      end
-    end
-    return true unless escape.any?
-  end
-
-  def rook_stale(board, turn)
-    find_all_pieces_by_type(2, board, @own_pieces)
-    escape = []
-    ROOK_CORDS.each do |r|
-      @all_pieces.each do |p|
-        possible_rook = [p[0] + r[0], p[1] + r[1]]
-        pos_rook_num = @notation.number_from_cord(possible_rook)
-        current_rook_num = @notation.number_from_cord(p)
-        next unless !(pos_rook_num.nil? || current_rook_num.nil?) && basic_move_rules(current_rook_num, pos_rook_num,
-                                                                                      turn)
-
-        escape << possible_rook if rook(p, possible_rook, board)
-      end
-    end
-    return true unless escape.any?
-  end
-
-  def queen_stale(board, turn)
-    find_all_pieces_by_type(1, board, @own_pieces)
-    escape = []
-    QUEEN_CORDS.each do |q|
-      @all_pieces.each do |p|
-        possible_queen = [p[0] + q[0], p[1] + q[1]]
-        pos_queen_num = @notation.number_from_cord(possible_queen)
-        current_queen_num = @notation.number_from_cord(p)
-        next unless !(pos_queen_num.nil? || current_queen_num.nil?) && basic_move_rules(current_queen_num, pos_queen_num,
-                                                                                        turn)
-
-        escape << possible_queen if queen(p, possible_queen, board)
-      end
-    end
-    return true unless escape.any?
-  end
-
   def king_stale(board, turn)
     find_all_pieces_by_type(0, board, @own_pieces)
-    escape = []
     KING_CORDS.each do |k|
       @all_pieces.each do |p|
         possible_king = [p[0] + k[0], p[1] + k[1]]
@@ -555,15 +488,78 @@ class Moves
         next unless !(pos_king_num.nil? || current_king_num.nil?) && basic_move_rules(current_king_num, pos_king_num,
                                                                                       turn)
 
-        escape << possible_king if king(p, possible_king, board)
+        @escape << [p, possible_king] if king(p, possible_king, board)
       end
     end
-    return true unless escape.any?
+    return true unless @escape.any?
+  end
+
+  def queen_stale(board, turn)
+    find_all_pieces_by_type(1, board, @own_pieces)
+    QUEEN_CORDS.each do |q|
+      @all_pieces.each do |p|
+        possible_queen = [p[0] + q[0], p[1] + q[1]]
+        pos_queen_num = @notation.number_from_cord(possible_queen)
+        current_queen_num = @notation.number_from_cord(p)
+        next unless !(pos_queen_num.nil? || current_queen_num.nil?) && basic_move_rules(current_queen_num, pos_queen_num,
+                                                                                        turn)
+
+        @escape << [p, possible_queen] if queen(p, possible_queen, board)
+      end
+    end
+    return true unless @escape.any?
+  end
+
+  def rook_stale(board, turn)
+    find_all_pieces_by_type(2, board, @own_pieces)
+    ROOK_CORDS.each do |r|
+      @all_pieces.each do |p|
+        possible_rook = [p[0] + r[0], p[1] + r[1]]
+        pos_rook_num = @notation.number_from_cord(possible_rook)
+        current_rook_num = @notation.number_from_cord(p)
+        next unless !(pos_rook_num.nil? || current_rook_num.nil?) && basic_move_rules(current_rook_num, pos_rook_num,
+                                                                                      turn)
+
+        @escape << [p, possible_rook] if rook(p, possible_rook, board)
+      end
+    end
+    return true unless @escape.any?
+  end
+
+  def bishop_stale(board, turn)
+    find_all_pieces_by_type(3, board, @own_pieces)
+    BISHOP_CORDS.each do |b|
+      @all_pieces.each do |p|
+        possible_bishop = [p[0] + b[0], p[1] + b[1]]
+        pos_bishop_num = @notation.number_from_cord(possible_bishop)
+        current_bishop_num = @notation.number_from_cord(p)
+        next unless !(pos_bishop_num.nil? || current_bishop_num.nil?) && basic_move_rules(current_bishop_num, pos_bishop_num,
+                                                                                          turn)
+
+        @escape << [p, possible_bishop] if bishop(p, possible_bishop, board)
+      end
+    end
+    return true unless @escape.any?
+  end
+
+  def knight_stale(board, turn)
+    find_all_pieces_by_type(4, board, @own_pieces)
+    KNIGHT_CORDS.each do |k|
+      @all_pieces.each do |p|
+        possible_knight = [p[0] + k[0], p[1] + k[1]]
+        pos_knight_num = @notation.number_from_cord(possible_knight)
+        current_knight_num = @notation.number_from_cord(p)
+        next unless !(pos_knight_num.nil? || current_knight_num.nil?) && basic_move_rules(current_knight_num, pos_knight_num,
+                                                                                          turn)
+
+        @escape << [p, possible_knight] if knight(p, possible_knight)
+      end
+    end
+    return true unless @escape.any?
   end
 
   def pawn_stale(board, turn)
     find_all_pieces_by_type(5, board, @own_pieces)
-    escape = []
     cords = if turn
               PAWN_BLACK_CORDS
             else
@@ -577,9 +573,16 @@ class Moves
         next unless !(pos_pawn_num.nil? || current_pawn_num.nil?) && basic_move_rules(current_pawn_num, pos_pawn_num,
                                                                                       turn)
 
-        escape << possible_pawn if pawn(p, possible_pawn, board)
+        @escape << [p, possible_pawn] if pawn(p, possible_pawn, board)
       end
     end
-    return true unless escape.any?
+    return true unless @escape.any?
+  end
+
+  def no_escape_into_check
+    @escape.select! do |move|
+      test_moves(@notation.number_from_cord(move[0]), @notation.number_from_cord(move[1]))
+      move if piece_access(king_coordinates(@test_board), @test_board) == false
+    end
   end
 end
