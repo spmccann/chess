@@ -53,8 +53,12 @@ while game_loop
     messages.new_game? ? moves.reset_game : break
     system 'clear'
   end
-  messages.your_move(turn)
-  player_move = messages.ask_move
+  player_move = if messages.your_move(turn) == 'com'
+                  # system 'sleep 1'
+                  moves.computer_player(moves.new_board, turn)
+                else
+                  messages.ask_move
+                end
   # Options (save, load, new game, quit)
   if %w[S L Q H D R].include?(player_move)
     serialize.option_selector(player_move)

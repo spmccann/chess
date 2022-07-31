@@ -2,7 +2,7 @@
 
 # terminal messages to players
 class Messages
-  attr_accessor(:turn)
+  attr_accessor(:turn, :player1, :player2)
 
   def initialize
     @player1 = ''
@@ -14,7 +14,7 @@ class Messages
   end
 
   def names_request
-    puts 'Enter player names for white and black'
+    puts 'Enter names one at a time for white and black. "com" for a computer opponent'
   end
 
   def names(one = gets.chomp, two = gets.chomp)
@@ -60,7 +60,13 @@ class Messages
   end
 
   def your_move(turn)
-    turn ? puts("#{@player1}, enter a move.") : puts("#{@player2}, enter a move.")
+    if turn
+      puts("#{@player1}, enter a move.")
+      @player1
+    else
+      puts("#{@player2}, enter a move.")
+      @player2
+    end
   end
 
   def invalid_notation

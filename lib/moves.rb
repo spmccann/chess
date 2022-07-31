@@ -449,9 +449,9 @@ class Moves
 
   def dead_position
     pieces_left = [@piece.white[3], @piece.white[4], @piece.black[3], @piece.black[4]]
-    @new_board.count(' ') == 62 || (@new_board.count(' ') == 61 && @new_board.each do |s|
-                                      true if pieces_left.include?(s)
-                                    end)
+    left = []
+    @new_board.each { |s| left << s if pieces_left.include?(s) }
+    @new_board.count(' ') == 62 || (@new_board.count(' ') == 61 && left.any?)
   end
 
   def stalemate(board, turn)
@@ -508,5 +508,14 @@ class Moves
       test_moves(@notation.number_from_cord(move[0]), @notation.number_from_cord(move[1]))
       move if piece_access(king_coordinates(@test_board), @test_board) == false
     end
+  end
+
+  def computer_player(board, turn)
+    @notation.numbers_to_algebraic
+    stalemate(board, turn)
+    move = @escape.sample
+    start_square = @notation.number_from_cord(move[0])
+    end_square = @notation.number_from_cord(move[1])
+    "#{@notation.table.key(start_square)}-#{@notation.table.key(end_square)}"
   end
 end
