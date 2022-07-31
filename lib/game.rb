@@ -111,7 +111,7 @@ while game_loop
       moves.promotion?(turn)
       moves.passant_control(turn)
       turn = !turn
-      # system 'clear'
+      system 'clear'
     else
       system 'clear'
       messages.invalid_chess_move

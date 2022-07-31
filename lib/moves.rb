@@ -156,7 +156,7 @@ class Moves
     end
   end
 
-  def knight(start_cord, end_cord)
+  def knight(start_cord, end_cord, _board = [])
     KNIGHT_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
   end
 
@@ -297,11 +297,8 @@ class Moves
   def attack_on_castle_squares
     result = []
     result << false if piece_access(@notation.cord_from_number(@moveset[0]), @new_board)
-    @checkers = []
     result << false if piece_access(@notation.cord_from_number(@moveset[2]), @new_board)
-    @checkers = []
     result << false if @moveset.length > 4 && piece_access(@notation.cord_from_number(@moveset[4]), @new_board)
-    @checkers = []
     true if result.empty?
   end
 
@@ -330,13 +327,27 @@ class Moves
     pawn_list.each { |i| @new_board[i] = pawn[1] if promo.include?(i) }
   end
 
+  def piece_methods(piece_num, p, possible, board)
+    case piece_num
+    when 0
+      king(p, possible, board)
+    when 1
+      queen(p, possible, board)
+    when 2
+      rook(p, possible, board)
+    when 3
+      bishop(p, possible, board)
+    when 4
+      knight(p, possible, board)
+    when 5
+      pawn(p, possible, board)
+    end
+  end
+
   # checks / access to specified square
   def piece_access(end_cord, board, side = @opp_pieces)
-    knight_access(end_cord, board, side)
-    bishop_access(end_cord, board, side)
-    rook_access(end_cord, board, side)
-    queen_access(end_cord, board, side)
-    pawn_access(end_cord, board, side)
+    @checkers = []
+    all_access(end_cord, board, side)
     return true unless @checkers.empty?
 
     false
@@ -356,29 +367,13 @@ class Moves
     board.each_with_index { |p, i| @all_pieces << @notation.cord_from_number(i) if p == side[num] }
   end
 
-  def queen_access(end_cord, board, side)
-    find_all_pieces_by_type(1, board, side)
-    @all_pieces.each { |q| @checkers << q if queen(q, end_cord, board) }
-  end
-
-  def rook_access(end_cord, board, side)
-    find_all_pieces_by_type(2, board, side)
-    @all_pieces.each { |r| @checkers << r if rook(r, end_cord, board) }
-  end
-
-  def bishop_access(end_cord, board, side)
-    find_all_pieces_by_type(3, board, side)
-    @all_pieces.each { |b| @checkers << b if bishop(b, end_cord, board) }
-  end
-
-  def knight_access(end_cord, board, side)
-    find_all_pieces_by_type(4, board, side)
-    @all_pieces.each { |n| @checkers << n if knight(n, end_cord) }
-  end
-
-  def pawn_access(end_cord, board, side)
-    find_all_pieces_by_type(5, board, side)
-    @all_pieces.each { |p| @checkers << p if pawn(p, end_cord, board) }
+  def all_access(end_cord, board, side)
+    all = 0
+    while all < 6
+      find_all_pieces_by_type(all, board, side)
+      @all_pieces.each { |p| @checkers << p if piece_methods(all, p, end_cord, board) }
+      all += 1
+    end
   end
 
   def no_king_check(board, end_cord)
@@ -399,7 +394,7 @@ class Moves
     current_king_cords = @notation.cord_from_number(@new_board.index(@own_pieces[0]))
     possible_king_moves = []
     escape = []
-    @checkers = []
+
     KING_CORDS.each do |k|
       possible_king_moves << @notation.number_from_cord([current_king_cords[0] + k[0], current_king_cords[1] + k[1]])
     end
@@ -409,7 +404,6 @@ class Moves
 
       test_moves(current_king, move)
       escape << true if piece_access(king_coordinates(@test_board), @test_board) == false
-      @checkers = []
     end
     return 'checkmate' unless escape.any?
   end
@@ -418,17 +412,14 @@ class Moves
     escape = []
     piece_access(king_coordinates(board), board)
     movement(@checkers[0], king_coordinates(board))
-    @checkers = []
     @full_path.each { |square| escape << square if piece_access(square, board, @own_pieces) == true }
-    @checkers = []
     return 'checkmate' unless escape.any?
   end
 
   def checkmate_capture(board)
     piece_access(king_coordinates(@new_board), board)
     capture_piece = @checkers[0]
-    @checkers = []
-    piece_access(capture_piece, board, @own_pieces) == false
+    piece_access(capture_piece, board, @own_pieces) == true
   end
 
   # collects the path between the attack piece and king to be used for checkmate_block
@@ -465,118 +456,51 @@ class Moves
 
   def stalemate(board, turn)
     @escape = []
-    king_stale(board, turn)
-    queen_stale(board, turn)
-    rook_stale(board, turn)
-    bishop_stale(board, turn)
-    knight_stale(board, turn)
-    pawn_stale(board, turn)
+    all_stale(board, turn)
     no_escape_into_check
-    p @escape
     return true if @escape.empty?
 
     false
   end
 
-  def king_stale(board, turn)
-    find_all_pieces_by_type(0, board, @own_pieces)
-    KING_CORDS.each do |k|
-      @all_pieces.each do |p|
-        possible_king = [p[0] + k[0], p[1] + k[1]]
-        pos_king_num = @notation.number_from_cord(possible_king)
-        current_king_num = @notation.number_from_cord(p)
-        next unless !(pos_king_num.nil? || current_king_num.nil?) && basic_move_rules(current_king_num, pos_king_num,
-                                                                                      turn)
-
-        @escape << [p, possible_king] if king(p, possible_king, board)
+  def cords_stale(cord_num, turn)
+    case cord_num
+    when 0
+      KING_CORDS
+    when 1
+      QUEEN_CORDS
+    when 2
+      ROOK_CORDS
+    when 3
+      BISHOP_CORDS
+    when 4
+      KNIGHT_CORDS
+    when 5
+      if turn
+        PAWN_BLACK_CORDS
+      else
+        PAWN_WHITE_CORDS
       end
     end
-    return true unless @escape.any?
   end
 
-  def queen_stale(board, turn)
-    find_all_pieces_by_type(1, board, @own_pieces)
-    QUEEN_CORDS.each do |q|
-      @all_pieces.each do |p|
-        possible_queen = [p[0] + q[0], p[1] + q[1]]
-        pos_queen_num = @notation.number_from_cord(possible_queen)
-        current_queen_num = @notation.number_from_cord(p)
-        next unless !(pos_queen_num.nil? || current_queen_num.nil?) && basic_move_rules(current_queen_num, pos_queen_num,
-                                                                                        turn)
+  def all_stale(board, turn)
+    all = 0
+    while all < 6
+      find_all_pieces_by_type(all, board, @own_pieces)
+      cords_stale(all, turn).each do |c|
+        @all_pieces.each do |p|
+          possible = [p[0] + c[0], p[1] + c[1]]
+          possible_num = @notation.number_from_cord(possible)
+          current_num = @notation.number_from_cord(p)
+          next unless !(possible_num.nil? || current_num.nil?) && basic_move_rules(current_num, possible_num,
+                                                                                   turn)
 
-        @escape << [p, possible_queen] if queen(p, possible_queen, board)
+          @escape << [p, possible] if piece_methods(all, p, possible, board)
+        end
       end
+      all += 1
     end
-    return true unless @escape.any?
-  end
-
-  def rook_stale(board, turn)
-    find_all_pieces_by_type(2, board, @own_pieces)
-    ROOK_CORDS.each do |r|
-      @all_pieces.each do |p|
-        possible_rook = [p[0] + r[0], p[1] + r[1]]
-        pos_rook_num = @notation.number_from_cord(possible_rook)
-        current_rook_num = @notation.number_from_cord(p)
-        next unless !(pos_rook_num.nil? || current_rook_num.nil?) && basic_move_rules(current_rook_num, pos_rook_num,
-                                                                                      turn)
-
-        @escape << [p, possible_rook] if rook(p, possible_rook, board)
-      end
-    end
-    return true unless @escape.any?
-  end
-
-  def bishop_stale(board, turn)
-    find_all_pieces_by_type(3, board, @own_pieces)
-    BISHOP_CORDS.each do |b|
-      @all_pieces.each do |p|
-        possible_bishop = [p[0] + b[0], p[1] + b[1]]
-        pos_bishop_num = @notation.number_from_cord(possible_bishop)
-        current_bishop_num = @notation.number_from_cord(p)
-        next unless !(pos_bishop_num.nil? || current_bishop_num.nil?) && basic_move_rules(current_bishop_num, pos_bishop_num,
-                                                                                          turn)
-
-        @escape << [p, possible_bishop] if bishop(p, possible_bishop, board)
-      end
-    end
-    return true unless @escape.any?
-  end
-
-  def knight_stale(board, turn)
-    find_all_pieces_by_type(4, board, @own_pieces)
-    KNIGHT_CORDS.each do |k|
-      @all_pieces.each do |p|
-        possible_knight = [p[0] + k[0], p[1] + k[1]]
-        pos_knight_num = @notation.number_from_cord(possible_knight)
-        current_knight_num = @notation.number_from_cord(p)
-        next unless !(pos_knight_num.nil? || current_knight_num.nil?) && basic_move_rules(current_knight_num, pos_knight_num,
-                                                                                          turn)
-
-        @escape << [p, possible_knight] if knight(p, possible_knight)
-      end
-    end
-    return true unless @escape.any?
-  end
-
-  def pawn_stale(board, turn)
-    find_all_pieces_by_type(5, board, @own_pieces)
-    cords = if turn
-              PAWN_BLACK_CORDS
-            else
-              PAWN_WHITE_CORDS
-            end
-    cords.each do |k|
-      @all_pieces.each do |p|
-        possible_pawn = [p[0] + k[0], p[1] + k[1]]
-        pos_pawn_num = @notation.number_from_cord(possible_pawn)
-        current_pawn_num = @notation.number_from_cord(p)
-        next unless !(pos_pawn_num.nil? || current_pawn_num.nil?) && basic_move_rules(current_pawn_num, pos_pawn_num,
-                                                                                      turn)
-
-        @escape << [p, possible_pawn] if pawn(p, possible_pawn, board)
-      end
-    end
-    return true unless @escape.any?
   end
 
   def no_escape_into_check
