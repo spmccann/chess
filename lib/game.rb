@@ -31,27 +31,27 @@ while game_loop
   if moves.dead_position
     messages.drawn
     messages.new_game? ? moves.reset_game : break
-    system 'clear'
+    # system 'clear
     turn = true
     next
   elsif moves.piece_access(moves.king_coordinates(moves.new_board), moves.new_board)
     if moves.checkmate(turn, moves.new_board)
       messages.checkmate(turn)
       messages.new_game? ? moves.reset_game : break
-      system 'clear'
+      # system 'clear
       turn = true
       next
     else
       messages.check(turn)
     end
   elsif moves.stalemate(moves.new_board, turn)
-    system 'clear'
+    # system 'clear
     board = Board.new(moves.new_board)
     board.display_board
     messages.stalemate
     turn = true
     messages.new_game? ? moves.reset_game : break
-    system 'clear'
+    # system 'clear
   end
   player_move = if messages.your_move(turn) == 'com'
                   # system 'sleep 1'
@@ -65,7 +65,7 @@ while game_loop
     messages.confirmation(player_move)
     case player_move
     when 'L'
-      system 'clear'
+      # system 'clear
       messages.names(serialize.names[0], serialize.names[1])
       moves.new_board = serialize.game
       board = Board.new(serialize.game)
@@ -75,22 +75,21 @@ while game_loop
       game_loop = false
     when 'D'
       if messages.draw_offer(turn)
-        system 'clear'
+        # system 'clear
         messages.drawn
         messages.new_game? ? moves.reset_game : break
         board = Board.new(moves.new_board)
         turn = true
       end
     when 'R'
-      system 'clear'
+      # system 'clear
       messages.resigns(turn)
       messages.new_game? ? moves.reset_game : break
       board = Board.new(moves.new_board)
       turn = true
     end
-  # castling
-  elsif %w[0-0 0-0-0].include?(player_move)
-    system 'clear'
+  elsif notation.castle_format(player_move)
+    # system 'clear
     if moves.castle(player_move, turn)
       turn = !turn
     else
@@ -107,7 +106,7 @@ while game_loop
       moves.test_moves(notation.input_start, notation.input_end)
       moves.checkers = []
       if moves.piece_access(moves.king_coordinates(moves.test_board), moves.test_board)
-        system 'clear'
+        # system 'clear
         next
       end
       # make the move on the board
@@ -115,13 +114,13 @@ while game_loop
       moves.promotion?(turn)
       moves.passant_control(turn)
       turn = !turn
-      system 'clear'
+      # system 'clear
     else
-      system 'clear'
+      # system 'clear
       messages.invalid_chess_move
     end
   else
-    system 'clear'
+    # system 'clear
     messages.invalid_notation
   end
 end

@@ -164,11 +164,19 @@ class Moves
     if board[@notation.number_from_cord(start_cord)] == @piece.white[5]
       cords = PAWN_WHITE_CORDS
       start_num = 6
-      mid_cord = [end_cord[0], end_cord[1] + 1]
+      mid_cord = if (end_cord[1] + 1) < 8
+                   [end_cord[0], end_cord[1] + 1]
+                 else
+                   [1, 0]
+                 end
     else
       cords = PAWN_BLACK_CORDS
       start_num = 1
-      mid_cord = [end_cord[0], end_cord[1] - 1]
+      mid_cord = if (end_cord[1] - 1).positive?
+                   [end_cord[0], end_cord[1] - 1]
+                 else
+                   [1, 0]
+                 end
     end
     pawn_loader(cords, start_num, start_cord, end_cord, mid_cord, board)
   end
@@ -211,7 +219,6 @@ class Moves
   def en_passant(cords, start_cord, end_cord, mid_cord, board)
     pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
     opp_take_pawn = board[@notation.number_from_cord(mid_cord)] == @opp_pieces[5]
-    mid_cord[1]
     start_spot = mid_cord[1] == if @own_pieces == @piece.white
                                   3
                                 else
@@ -344,15 +351,6 @@ class Moves
     end
   end
 
-  # checks / access to specified square
-  def piece_access(end_cord, board, side = @opp_pieces)
-    @checkers = []
-    all_access(end_cord, board, side)
-    return true unless @checkers.empty?
-
-    false
-  end
-
   def king_coordinates(board)
     @notation.cord_from_number(board.index(@own_pieces[0]))
   end
@@ -360,6 +358,15 @@ class Moves
   def piece_color(turn)
     @opp_pieces = turn ? @piece.black : @piece.white
     @own_pieces = turn ? @piece.white : @piece.black
+  end
+
+  # checks / access to specified square
+  def piece_access(end_cord, board, side = @opp_pieces)
+    @checkers = []
+    all_access(end_cord, board, side)
+    return true unless @checkers.empty?
+
+    false
   end
 
   def find_all_pieces_by_type(num, board, side)
@@ -413,13 +420,13 @@ class Moves
     piece_access(king_coordinates(board), board)
     movement(@checkers[0], king_coordinates(board))
     @full_path.each { |square| escape << square if piece_access(square, board, @own_pieces) == true }
-    return 'checkmate' unless escape.any?
+    return 'checkmate' unless escape.any? && board[@notation.number_from_cord(@checkers[0])] != @own_pieces[0]
   end
 
   def checkmate_capture(board)
     piece_access(king_coordinates(@new_board), board)
     capture_piece = @checkers[0]
-    piece_access(capture_piece, board, @own_pieces) == true
+    piece_access(capture_piece, board, @own_pieces) == false
   end
 
   # collects the path between the attack piece and king to be used for checkmate_block
@@ -513,9 +520,15 @@ class Moves
   def computer_player(board, turn)
     @notation.numbers_to_algebraic
     stalemate(board, turn)
+    add_castle_com(turn)
     move = @escape.sample
     start_square = @notation.number_from_cord(move[0])
     end_square = @notation.number_from_cord(move[1])
     "#{@notation.table.key(start_square)}-#{@notation.table.key(end_square)}"
+  end
+
+  def add_castle_com(turn)
+    @escape.push('0-0') if castle('0-0', turn)
+    @escape.push('0-0-0') if castle('0-0-0', turn)
   end
 end
