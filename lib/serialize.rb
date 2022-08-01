@@ -23,16 +23,20 @@ class Serialize
 
   def load_game
     if Dir.exist?('saves')
-      user_load = File.open('saves/game.txt', 'r').readline
-      saves = JSON.parse(user_load)
-      @game = saves[0]
-      @names = saves[1]
-      @turn = saves[2]
-      @castle_rights = saves[3]
-      @move_history = saves[4]
+      save_slots
     else
       puts 'No saves found!'
     end
+  end
+
+  def save_slots
+    user_load = File.open('saves/game.txt', 'r').readline
+    saves = JSON.parse(user_load)
+    @game = saves[0]
+    @names = saves[1]
+    @turn = saves[2]
+    @castle_rights = saves[3]
+    @move_history = saves[4]
   end
 
   def option_selector(choice)

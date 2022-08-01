@@ -28,7 +28,7 @@ while game_loop
   board.display_board
   moves.piece_color(turn)
   moves.move_counter
-  if moves.dead_position
+  if moves.dead_position || moves.three_fold_repetition
     messages.drawn
     moves.reset_game
     messages.new_game? ? moves.reset_game : break

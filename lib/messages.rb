@@ -70,7 +70,7 @@ class Messages
   end
 
   def invalid_notation
-    puts 'Enter your move in the format [A-H][1-8]-[A-H][1-8]. For example, E2-E4. 0-0 for short castle. 0-0-0 for long castle'
+    puts 'Enter your move in the format [A-H][1-8]-[A-H][1-8]. For example, E2-E4. 0-0 and 0-0-0 for short/long castle'
   end
 
   def invalid_chess_move
@@ -100,7 +100,11 @@ class Messages
   end
 
   def draw_offer(turn)
-    turn ? puts("#{@player1} would like a draw. Does #{@player2} accept?") : puts("#{@player2} would like a draw. Does #{@player1} accept?")
+    if turn
+      puts("#{@player1} wants a draw. Does #{@player2} accept?")
+    else
+      puts("#{@player2} wants a draw. Does #{@player1} accept?")
+    end
     answer = gets.chomp.downcase
     answer == 'yes'
   end

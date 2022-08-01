@@ -52,7 +52,9 @@ class Notation
   end
 
   def notation_valid_format(move)
-    move.length == 5 && @letter.include?(move[0]) && @num.include?(move[1].to_i) && move[2] == '-' && @letter.include?(move[3]) && @num.include?(move[4].to_i)
+    move.length == 5 && @letter.include?(move[0]) && @num.include?(move[1].to_i) && move[2] == '-' && @letter.include?(
+      move[3]
+    ) && @num.include?(move[4].to_i)
   end
 
   def castle_format(move)

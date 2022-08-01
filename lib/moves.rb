@@ -483,4 +483,11 @@ class Moves
     @escape.push('0-0') if castle('0-0', turn)
     @escape.push('0-0-0') if castle('0-0-0', turn)
   end
+
+  def three_fold_repetition
+    return false unless @move_history.length > 7
+
+    repeat = @move_history[-8..]
+    repeat[0] == repeat[4] && repeat[1] == repeat[5] && repeat[2] == repeat[6] && repeat[3] == repeat[7]
+  end
 end
