@@ -18,7 +18,7 @@ messages = Messages.new
 messages.welcome
 messages.names_request
 
-serialize = Serialize.new(moves.new_board, messages.names, turn, moves.castle_rights)
+serialize = Serialize.new(moves.new_board, messages.names, turn, moves.castle_rights, moves.move_history)
 
 while game_loop
   # inform the player it's their turn and ask for a move
@@ -73,6 +73,7 @@ while game_loop
       board = Board.new(serialize.game)
       turn = serialize.turn
       moves.castle_rights = serialize.castle_rights
+      moves.move_history = serialize.move_history
     when 'Q'
       game_loop = false
     when 'D'
@@ -112,9 +113,8 @@ while game_loop
       end
 
       # make the move on the board
-      moves.make_moves(notation.input_start, notation.input_end)
+      moves.make_moves(notation.input_start, notation.input_end, turn)
       moves.promotion?(turn)
-      moves.passant_control(turn)
       turn = !turn
       # system 'clear'
     else

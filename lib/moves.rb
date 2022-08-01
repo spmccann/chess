@@ -6,7 +6,7 @@ require_relative 'cords_module'
 
 # accepts player inputs to update the board and pieces positions
 class Moves
-  attr_accessor(:new_board, :test_board, :castle_rights)
+  attr_accessor(:new_board, :test_board, :castle_rights, :move_history)
 
   include Coordinates
 
@@ -19,8 +19,8 @@ class Moves
     @notation = Notation.new
     @castle_rights = [0, 0, 0, 0]
     @checkers = []
-    @passant_possible = []
-    @passant_turns = []
+    @move_history = []
+    @special = false
     @escape = []
     @new_board =
       ['8', @piece.black[2], @piece.black[4], @piece.black[3], @piece.black[1], @piece.black[0], @piece.black[3], @piece.black[4], @piece.black[2],
@@ -39,9 +39,22 @@ class Moves
   end
 
   # update the board
-  def make_moves(start_square, end_square)
+  def make_moves(start_square, end_square, turn)
+    @move_history << [start_square, end_square]
     @new_board[end_square] = @new_board[start_square]
     @new_board[start_square] = ' '
+    make_special_moves(end_square, turn) if @special
+  end
+
+  def make_special_moves(end_square, turn)
+    end_cord = @notation.cord_from_number(end_square)
+    mid_cord = if turn
+                 [end_cord[0], end_cord[1] + 1]
+               else
+                 [end_cord[0], end_cord[1] - 1]
+               end
+    @new_board[@notation.number_from_cord(mid_cord)] = ' '
+    @special = false
   end
 
   # playing a move on a test board to catch a move that walks into check
@@ -199,10 +212,10 @@ class Moves
 
   def pawn_forward_two(cords, start_num, start_cord, end_cord, mid_cord, board)
     pawn_test = [start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]
-    @passant_possible << end_cord if start_cord[1] == start_num && cords[1] == pawn_test && no_pawn_ahead(end_cord,
-                                                                                                          board) && pawn_mid(
-                                                                                                            mid_cord, board
-                                                                                                          )
+    true if start_cord[1] == start_num && cords[1] == pawn_test && no_pawn_ahead(end_cord,
+                                                                                 board) && pawn_mid(
+                                                                                   mid_cord, board
+                                                                                 )
   end
 
   def pawn_capture(cords, start_cord, end_cord, board)
@@ -227,20 +240,20 @@ class Moves
                                 else
                                   4
                                 end
-    unless @passant_possible.include?(mid_cord) && cords[2..3].include?(pawn_test) && opp_take_pawn && start_spot
-      return false
-    end
+    return false unless cords[2..3].include?(pawn_test) && opp_take_pawn && start_spot && last_move_two(mid_cord)
 
-    # board[@notation.number_from_cord(mid_cord)] = ' '
+    @special = true
     true
   end
 
-  def passant_control(turn)
-    @passant_turns << turn unless @passant_possible.empty?
-    return unless @passant_turns.length > 1
-
-    @passant_possible = []
-    @passant_turns = []
+  def last_move_two(mid_cord)
+    last = @move_history[-1]
+    start_cord = @notation.cord_from_number(last[0])
+    end_cord = @notation.cord_from_number(last[1])
+    pawn_test = (start_cord[1] - end_cord[1]).abs == 2
+    is_pawn = @new_board[last[1]] == @opp_pieces[5]
+    adjacent = mid_cord == end_cord
+    pawn_test && is_pawn && adjacent
   end
 
   # castling
@@ -248,6 +261,7 @@ class Moves
     select_castle(player_move, turn)
     if valid_castle && castling_rights(player_move, turn) && attack_on_castle_squares && no_castle_in_check
       castle_move
+      @move_history << player_move
     else
       false
     end
