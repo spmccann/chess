@@ -98,8 +98,11 @@ class Moves
   end
 
   def king(start_cord, end_cord, board)
-    KING_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]]) unless no_king_check(board,
-                                                                                                         end_cord)
+    return true if no_king_check(board, end_cord)
+
+    return true if KING_CORDS.include?([start_cord[0] - end_cord[0], start_cord[1] - end_cord[1]])
+
+    false
   end
 
   def queen(start_cord, end_cord, board)
@@ -389,69 +392,6 @@ class Moves
     KING_CORDS.each { |k| cords << [current_king[0] + k[0], current_king[1] + k[1]] }
     cords.each { |k| return true if k == end_cord }
     false
-  end
-
-  # checkmate
-  def checkmate(turn, board)
-    checkmate_king_moves(turn) == 'checkmate' && checkmate_block(board) == 'checkmate' && checkmate_capture(board)
-  end
-
-  def checkmate_king_moves(turn)
-    current_king = @new_board.index(@own_pieces[0])
-    current_king_cords = @notation.cord_from_number(@new_board.index(@own_pieces[0]))
-    possible_king_moves = []
-    escape = []
-
-    KING_CORDS.each do |k|
-      possible_king_moves << @notation.number_from_cord([current_king_cords[0] + k[0], current_king_cords[1] + k[1]])
-    end
-    possible_king_moves.compact!
-    possible_king_moves.each do |move|
-      next unless basic_move_rules(current_king, move, turn)
-
-      test_moves(current_king, move)
-      escape << true if piece_access(king_coordinates(@test_board), @test_board) == false
-    end
-    return 'checkmate' unless escape.any?
-  end
-
-  def checkmate_block(board)
-    escape = []
-    piece_access(king_coordinates(board), board)
-    movement(@checkers[0], king_coordinates(board))
-    @full_path.each { |square| escape << square if piece_access(square, board, @own_pieces) == true }
-    return 'checkmate' unless escape.any? && board[@notation.number_from_cord(@checkers[0])] != @own_pieces[0]
-  end
-
-  def checkmate_capture(board)
-    piece_access(king_coordinates(@new_board), board)
-    capture_piece = @checkers[0]
-    piece_access(capture_piece, board, @own_pieces) == false
-  end
-
-  # collects the path between the attack piece and king to be used for checkmate_block
-  def movement(first, last)
-    @full_path = []
-    while first != last
-      @full_path << first = if first[0] < last[0] && first[1] < last[1]
-                              [first[0] + 1, first[1] + 1]
-                            elsif first[0] > last[0] && first[1] > last[1]
-                              [first[0] - 1, first[1] - 1]
-                            elsif first[0] > last[0] && first[1] < last[1]
-                              [first[0] - 1, first[1] + 1]
-                            elsif first[0] < last[0] && first[1] > last[1]
-                              [first[0] + 1, first[1] - 1]
-                            elsif first[0] < last[0] && first[1] == last[1]
-                              [first[0] + 1, first[1]]
-                            elsif first[0] > last[0] && first[1] == last[1]
-                              [first[0] - 1, first[1]]
-                            elsif first[0] == last[0] && first[1] < last[1]
-                              [first[0], first[1] + 1]
-                            else
-                              [first[0], first[1] - 1]
-                            end
-    end
-    @full_path.pop
   end
 
   def dead_position

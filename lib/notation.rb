@@ -56,7 +56,7 @@ class Notation
   end
 
   def castle_format(move)
-    move == '0-0' || move == '0-0-0'
+    ['0-0', '0-0-0'].include?(move)
   end
 
   def submit_move(move)
