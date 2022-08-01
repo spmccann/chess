@@ -53,8 +53,16 @@ class Moves
                else
                  [end_cord[0], end_cord[1] - 1]
                end
-    @new_board[@notation.number_from_cord(mid_cord)] = ' '
+    @new_board[@notation.number_from_cord(mid_cord)] = ' ' if en_passant_pawn(mid_cord)
     @special = false
+  end
+
+  def en_passant_pawn(mid_cord)
+    last = @move_history[-2]
+    return false unless last[0].is_a? Numeric
+
+    end_cord = @notation.cord_from_number(last[1])
+    end_cord == mid_cord
   end
 
   # playing a move on a test board to catch a move that walks into check
@@ -248,6 +256,8 @@ class Moves
 
   def last_move_two(mid_cord)
     last = @move_history[-1]
+    return false unless last[0].is_a? Numeric
+
     start_cord = @notation.cord_from_number(last[0])
     end_cord = @notation.cord_from_number(last[1])
     pawn_test = (start_cord[1] - end_cord[1]).abs == 2
@@ -261,7 +271,7 @@ class Moves
     select_castle(player_move, turn)
     if valid_castle && castling_rights(player_move, turn) && attack_on_castle_squares && no_castle_in_check
       castle_move
-      @move_history << player_move
+      @move_history << [player_move]
     else
       false
     end

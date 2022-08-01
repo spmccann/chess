@@ -95,8 +95,9 @@ class Messages
 
   def new_game?
     puts "Type 'yes' if you wish to start a new game"
-    answer = gets.chomp.downcase
-    answer == 'yes'
+    # answer = gets.chomp.downcase
+    # answer == 'yes'
+    'yes'
   end
 
   def draw_offer(turn)
