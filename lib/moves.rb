@@ -6,7 +6,7 @@ require_relative 'cords_module'
 
 # accepts player inputs to update the board and pieces positions
 class Moves
-  attr_accessor(:new_board, :test_board, :castle_rights, :checkers)
+  attr_accessor(:new_board, :test_board, :castle_rights)
 
   include Coordinates
 
@@ -227,12 +227,11 @@ class Moves
                                 else
                                   4
                                 end
-
-    unless @passant_possible[0] == mid_cord && cords[2..3].include?(pawn_test) && opp_take_pawn && start_spot
+    unless @passant_possible.include?(mid_cord) && cords[2..3].include?(pawn_test) && opp_take_pawn && start_spot
       return false
     end
 
-    board[@notation.number_from_cord(mid_cord)] = ' '
+    # board[@notation.number_from_cord(mid_cord)] = ' '
     true
   end
 
@@ -401,7 +400,7 @@ class Moves
     @new_board.count(' ') == 62 || (@new_board.count(' ') == 61 && left.any?)
   end
 
-  def stalemate(board, turn)
+  def mate(board, turn)
     @escape = []
     all_stale(board, turn)
     no_escape_into_check
@@ -440,8 +439,7 @@ class Moves
           possible = [p[0] + c[0], p[1] + c[1]]
           possible_num = @notation.number_from_cord(possible)
           current_num = @notation.number_from_cord(p)
-          next unless !(possible_num.nil? || current_num.nil?) && basic_move_rules(current_num, possible_num,
-                                                                                   turn)
+          next unless !possible_num.nil? && basic_move_rules(current_num, possible_num, turn)
 
           @escape << [p, possible] if piece_methods(all, p, possible, board)
         end
@@ -459,7 +457,7 @@ class Moves
 
   def computer_player(board, turn)
     @notation.numbers_to_algebraic
-    stalemate(board, turn)
+    mate(board, turn)
     add_castle_com(turn)
     move = @escape.sample
     start_square = @notation.number_from_cord(move[0])

@@ -36,7 +36,7 @@ while game_loop
     turn = true
     next
   elsif moves.piece_access(moves.king_coordinates(moves.new_board), moves.new_board)
-    if moves.stalemate(moves.new_board, turn)
+    if moves.mate(moves.new_board, turn)
       messages.checkmate(turn)
       moves.reset_game
       messages.new_game? ? moves.reset_game : break
@@ -46,7 +46,7 @@ while game_loop
     else
       messages.check(turn)
     end
-  elsif moves.stalemate(moves.new_board, turn)
+  elsif moves.mate(moves.new_board, turn)
     system 'clear'
     messages.stalemate
     moves.reset_game
@@ -106,7 +106,6 @@ while game_loop
                                                           notation.input_start, moves.new_board)
       # verifies a player in check makes a move out and also not in
       moves.test_moves(notation.input_start, notation.input_end)
-      moves.checkers = []
       if moves.piece_access(moves.king_coordinates(moves.test_board), moves.test_board)
         system 'clear'
         next
@@ -117,9 +116,9 @@ while game_loop
       moves.promotion?(turn)
       moves.passant_control(turn)
       turn = !turn
-      system 'clear'
+      # system 'clear'
     else
-      system 'clear'
+      # system 'clear'
       messages.invalid_chess_move
     end
   else
