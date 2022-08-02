@@ -56,7 +56,7 @@ while game_loop
     next
   end
   player_move = if messages.your_move(turn) == 'com'
-                  # system 'sleep 1'
+                  system 'sleep 1'
                   moves.computer_player(moves.new_board, turn)
                 else
                   messages.ask_move
@@ -116,9 +116,9 @@ while game_loop
       moves.make_moves(notation.input_start, notation.input_end, turn)
       moves.promotion?(turn)
       turn = !turn
-      # system 'clear'
+      system 'clear'
     else
-      # system 'clear'
+      system 'clear'
       messages.invalid_chess_move
     end
   else
