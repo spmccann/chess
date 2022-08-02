@@ -22,17 +22,17 @@
 ![comvscom](/images/helpmenu.png)
 
 # Classes and Files
-- game.rb - procedural execute game loop from start to end. Main game file. 
+- game.rb - Procedurally execute the game loop from start to end. Main game file. 
 
-- Moves (moves.rb) - contains the rules for all pieces and evaluating games state/objectives.
+- Moves (moves.rb) - Contains the rules for all pieces and evaluates games state/objectives.
 
 - Messages (messages.rb) - Communicates with the player about their turn and board conditions.
 
-- Notation (notation.rb) - Allows for board state to be converted between arrays of algebraic, index and cordinates elements to better cohearse game logic.
+- Notation (notation.rb) - Allows for board state to be converted between arrays of algebraic, index and cordinates elements to better coerce game logic.
 
 - Pieces (pieces.rb) - Stores the Unicode characters for the chess board.
 
-- Coordinates (cords_module.rb) - module for the movement path constants for each piece.
+- Coordinates (cords_module.rb) - Module for the movement path constants for each piece.
 
 - Serilize (serialize.rb) - Loading and Saving to file. Creating the directory and file.
 
